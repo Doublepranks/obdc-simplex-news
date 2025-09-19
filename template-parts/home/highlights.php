@@ -5,52 +5,42 @@
  * @package ObDC-simplex-news
  */
 
-// Get the ID of the featured post if it exists
-$featured_post_id = '';
-$featured_query = new WP_Query( array(
-	'posts_per_page' => 1,
-	'meta_key'       => '_featured_on_home',
-	'meta_value'     => '1',
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-) );
+$featured_data = get_query_var( 'obdc_featured_data' );
 
-if ( $featured_query->have_posts() ) {
-	$featured_query->the_post();
-	$featured_post_id = get_the_ID();
-	wp_reset_postdata();
+if ( empty( $featured_data ) && function_exists( 'obdc_simplex_news_get_front_page_featured_data' ) ) {
+        $featured_data = obdc_simplex_news_get_front_page_featured_data();
 }
 
-// Get the next two latest posts after the featured one
-$secondary_query = new WP_Query( array(
-	'posts_per_page' => 2,
-	'post__not_in'   => array( $featured_post_id ),
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-	'post_status'    => 'publish',
-) );
+$highlight_ids = array();
 
-if ( $secondary_query->have_posts() ) :
-	while ( $secondary_query->have_posts() ) : $secondary_query->the_post();
-?>
-<article class="hero-card">
-	<a href="<?php the_permalink(); ?>" class="media">
-		<?php the_post_thumbnail( 'card', array( 'alt' => esc_attr( get_the_title() ) ) ); ?>
-	</a>
-	<div class="body">
-		<div class="kicker">
-			<?php 
-			$categories = get_the_category();
-			if ( ! empty( $categories ) ) {
-				echo esc_html( $categories[0]->name );
-			}
-			?>
-		</div>
-		<h3 class="title-md"><a href="<?php the_permalink(); ?>"> <?php the_title(); ?></a></h3>
-		<p class="meta"> <?php echo human_time_diff( get_the_time('U'), current_time('timestamp') ); ?> atrás </p>
-	</div>
-</article>
-<?php
-	endwhile;
-	wp_reset_postdata();
-endif;
+if ( ! empty( $featured_data['highlight_ids'] ) && is_array( $featured_data['highlight_ids'] ) ) {
+        $highlight_ids = array_map( 'intval', $featured_data['highlight_ids'] );
+}
+
+if ( ! empty( $highlight_ids ) ) :
+        foreach ( $highlight_ids as $highlight_id ) :
+                $title        = get_the_title( $highlight_id );
+                $permalink    = get_permalink( $highlight_id );
+                $thumbnail    = get_the_post_thumbnail( $highlight_id, 'card', array( 'alt' => esc_attr( $title ) ) );
+                $categories   = get_the_category( $highlight_id );
+                $category     = ! empty( $categories ) ? $categories[0]->name : '';
+                $published_at = human_time_diff( get_post_time( 'U', false, $highlight_id ), current_time( 'timestamp' ) );
+        ?>
+        <article class="hero-card">
+                <a href="<?php echo esc_url( $permalink ); ?>" class="media">
+                        <?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                </a>
+                <div class="body">
+                        <div class="kicker">
+                                <?php if ( $category ) : ?>
+                                        <?php echo esc_html( $category ); ?>
+                                <?php endif; ?>
+                        </div>
+                        <h3 class="title-md"><a href="<?php echo esc_url( $permalink ); ?>"> <?php echo esc_html( $title ); ?></a></h3>
+                        <?php if ( $published_at ) : ?>
+                                <p class="meta"> <?php printf( esc_html__( '%s atrás', 'obdc-simplex-news' ), esc_html( $published_at ) ); ?> </p>
+                        <?php endif; ?>
+                </div>
+        </article>
+        <?php endforeach; ?>
+<?php endif; ?>

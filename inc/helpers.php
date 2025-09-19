@@ -64,74 +64,153 @@ function obdc_simplex_news_get_first_category_name( $post_id = null ) {
 
 
 /**
- * Get the IDs of posts displayed in the hero and highlight areas on the front page.
+ * Get the structured list of posts used on the front page hero and highlights.
  *
- * @return array List of post IDs to exclude from the feed loop.
+ * @return array {
+ *     @type int   $hero_id       The post ID used in the hero slot. Zero when unavailable.
+ *     @type array $highlight_ids Post IDs used by the highlights (maximum of two).
+ *     @type array $excluded_ids  Aggregated IDs that should be excluded from other queries.
+ * }
  */
-function obdc_simplex_news_get_front_page_excluded_post_ids() {
-        $excluded_post_ids = array();
-        $hero_post_id      = null;
+function obdc_simplex_news_get_front_page_featured_data() {
+        static $cached_featured_data = null;
 
-        // Attempt to fetch a featured hero post first.
-        $featured_hero_query = new WP_Query(
-                array(
-                        'posts_per_page' => 1,
-                        'meta_key'       => '_featured_on_home',
-                        'meta_value'     => '1',
-                        'orderby'        => 'date',
-                        'order'          => 'DESC',
-                        'fields'         => 'ids',
-                )
-        );
-
-        if ( ! empty( $featured_hero_query->posts ) ) {
-                $hero_post_id = (int) $featured_hero_query->posts[0];
+        if ( null !== $cached_featured_data ) {
+                return $cached_featured_data;
         }
 
-        wp_reset_postdata();
+        $featured_data = array(
+                'hero_id'       => 0,
+                'highlight_ids' => array(),
+                'excluded_ids'  => array(),
+        );
 
-        // Fallback to the latest post if no featured hero exists.
-        if ( ! $hero_post_id ) {
-                $latest_hero_query = new WP_Query(
+        $sticky_post_ids = get_option( 'sticky_posts' );
+
+        if ( ! empty( $sticky_post_ids ) ) {
+                $sticky_query = new WP_Query(
                         array(
-                                'posts_per_page' => 1,
-                                'orderby'        => 'date',
-                                'order'          => 'DESC',
-                                'fields'         => 'ids',
+                                'post_type'           => 'post',
+                                'post_status'         => 'publish',
+                                'post__in'            => array_map( 'intval', $sticky_post_ids ),
+                                'posts_per_page'      => 3,
+                                'orderby'             => 'date',
+                                'order'               => 'DESC',
+                                'ignore_sticky_posts' => 1,
                         )
                 );
 
-                if ( ! empty( $latest_hero_query->posts ) ) {
-                        $hero_post_id = (int) $latest_hero_query->posts[0];
+                if ( $sticky_query->have_posts() ) {
+                        $sticky_posts = $sticky_query->posts;
+
+                        $hero_post = array_shift( $sticky_posts );
+
+                        if ( $hero_post instanceof WP_Post ) {
+                                $hero_id                      = (int) $hero_post->ID;
+                                $featured_data['hero_id']     = $hero_id;
+                                $featured_data['excluded_ids'][] = $hero_id;
+                        }
+
+                        foreach ( $sticky_posts as $sticky_post ) {
+                                if ( count( $featured_data['highlight_ids'] ) >= 2 ) {
+                                        break;
+                                }
+
+                                if ( $sticky_post instanceof WP_Post ) {
+                                        $highlight_id = (int) $sticky_post->ID;
+                                        $featured_data['highlight_ids'][] = $highlight_id;
+                                        $featured_data['excluded_ids'][]  = $highlight_id;
+                                }
+                        }
                 }
 
                 wp_reset_postdata();
         }
 
-        if ( $hero_post_id ) {
-                $excluded_post_ids[] = $hero_post_id;
+        if ( ! $featured_data['hero_id'] ) {
+                $hero_query = new WP_Query(
+                        array(
+                                'post_type'           => 'post',
+                                'post_status'         => 'publish',
+                                'posts_per_page'      => 1,
+                                'orderby'             => 'date',
+                                'order'               => 'DESC',
+                                'ignore_sticky_posts' => 1,
+                                'post__not_in'        => $featured_data['excluded_ids'],
+                        )
+                );
+
+                if ( $hero_query->have_posts() ) {
+                        $hero_post = $hero_query->posts[0];
+
+                        if ( $hero_post instanceof WP_Post ) {
+                                $hero_id                      = (int) $hero_post->ID;
+                                $featured_data['hero_id']     = $hero_id;
+                                $featured_data['excluded_ids'][] = $hero_id;
+                        }
+                }
+
+                wp_reset_postdata();
         }
 
-        // Fetch highlight posts, excluding the hero when available.
-        $highlights_args = array(
-                'posts_per_page' => 2,
-                'orderby'        => 'date',
-                'order'          => 'DESC',
-                'fields'         => 'ids',
-                'post_status'    => 'publish',
-        );
+        $highlight_needed = 2 - count( $featured_data['highlight_ids'] );
 
-        if ( $hero_post_id ) {
-                $highlights_args['post__not_in'] = array( $hero_post_id );
+        if ( $highlight_needed > 0 ) {
+                $highlight_query = new WP_Query(
+                        array(
+                                'post_type'           => 'post',
+                                'post_status'         => 'publish',
+                                'posts_per_page'      => $highlight_needed,
+                                'orderby'             => 'date',
+                                'order'               => 'DESC',
+                                'ignore_sticky_posts' => 1,
+                                'post__not_in'        => $featured_data['excluded_ids'],
+                        )
+                );
+
+                if ( $highlight_query->have_posts() ) {
+                        foreach ( $highlight_query->posts as $highlight_post ) {
+                                if ( $highlight_post instanceof WP_Post ) {
+                                        $highlight_id = (int) $highlight_post->ID;
+                                        $featured_data['highlight_ids'][] = $highlight_id;
+                                        $featured_data['excluded_ids'][]  = $highlight_id;
+                                }
+                        }
+                }
+
+                wp_reset_postdata();
         }
 
-        $highlights_query = new WP_Query( $highlights_args );
+        $featured_data['highlight_ids'] = array_values( array_unique( array_map( 'intval', $featured_data['highlight_ids'] ) ) );
+        $featured_data['excluded_ids']  = array_values( array_unique( array_map( 'intval', $featured_data['excluded_ids'] ) ) );
 
-        if ( ! empty( $highlights_query->posts ) ) {
-                $excluded_post_ids = array_merge( $excluded_post_ids, array_map( 'intval', $highlights_query->posts ) );
+        /**
+         * Filter the featured posts used by the front page hero and highlights.
+         *
+         * @since 1.0.0
+         *
+         * @param array $featured_data {
+         *     @type int   $hero_id       The hero post ID.
+         *     @type array $highlight_ids Highlight post IDs.
+         *     @type array $excluded_ids  IDs excluded from other queries.
+         * }
+         */
+        $cached_featured_data = apply_filters( 'obdc_simplex_news_front_page_featured_data', $featured_data );
+
+        return $cached_featured_data;
+}
+
+/**
+ * Get the IDs of posts displayed in the hero and highlight areas on the front page.
+ *
+ * @return array List of post IDs to exclude from the feed loop.
+ */
+function obdc_simplex_news_get_front_page_excluded_post_ids() {
+        $featured_data = obdc_simplex_news_get_front_page_featured_data();
+
+        if ( empty( $featured_data['excluded_ids'] ) ) {
+                return array();
         }
 
-        wp_reset_postdata();
-
-        return array_values( array_unique( $excluded_post_ids ) );
+        return $featured_data['excluded_ids'];
 }

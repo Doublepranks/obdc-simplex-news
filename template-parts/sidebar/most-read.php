@@ -5,15 +5,36 @@
  * @package ObDC-simplex-news
  */
 
+// Prevent overlap with hero/highlight posts when rendered on the front page.
+$excluded_featured_ids = array();
+
+if ( is_front_page() ) {
+        $featured_data = get_query_var( 'obdc_featured_data' );
+
+        if ( empty( $featured_data ) && function_exists( 'obdc_simplex_news_get_front_page_featured_data' ) ) {
+                $featured_data = obdc_simplex_news_get_front_page_featured_data();
+        }
+
+        if ( ! empty( $featured_data['excluded_ids'] ) ) {
+                $excluded_featured_ids = array_map( 'intval', (array) $featured_data['excluded_ids'] );
+        }
+}
+
 // Get most viewed posts (requires plugin like 'Post Views Counter' or custom table)
 // Using meta_key 'post_views' as specified in ObDC documentation
-$most = new WP_Query( array(
-	'posts_per_page' => 6,
-	'meta_key'       => 'post_views',
-	'orderby'        => 'meta_value_num',
-	'order'          => 'DESC',
-	'post_status'    => 'publish',
-) );
+$most_query_args = array(
+        'posts_per_page' => 6,
+        'meta_key'       => 'post_views',
+        'orderby'        => 'meta_value_num',
+        'order'          => 'DESC',
+        'post_status'    => 'publish',
+);
+
+if ( ! empty( $excluded_featured_ids ) ) {
+        $most_query_args['post__not_in'] = $excluded_featured_ids;
+}
+
+$most = new WP_Query( $most_query_args );
 
 if ( $most->have_posts() ) : ?>
 	<div class="box">

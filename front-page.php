@@ -14,9 +14,18 @@
 
 get_header();
 
+$featured_data     = array();
 $excluded_post_ids = array();
 
-if ( function_exists( 'obdc_simplex_news_get_front_page_excluded_post_ids' ) ) {
+if ( function_exists( 'obdc_simplex_news_get_front_page_featured_data' ) ) {
+        $featured_data = obdc_simplex_news_get_front_page_featured_data();
+}
+
+set_query_var( 'obdc_featured_data', $featured_data );
+
+if ( ! empty( $featured_data['excluded_ids'] ) ) {
+        $excluded_post_ids = $featured_data['excluded_ids'];
+} elseif ( function_exists( 'obdc_simplex_news_get_front_page_excluded_post_ids' ) ) {
         $excluded_post_ids = obdc_simplex_news_get_front_page_excluded_post_ids();
 }
 

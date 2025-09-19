@@ -5,50 +5,64 @@
  * @package ObDC-simplex-news
  */
 
-// For the hero, we want the latest post marked as 'Featured on Home'
-$featured_args = array(
-	'posts_per_page' => 1,
-	'meta_key'       => '_featured_on_home',
-	'meta_value'     => '1',
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-);
+$featured_data = get_query_var( 'obdc_featured_data' );
 
-$featured_query = new WP_Query( $featured_args );
-
-// If no featured post is found, get the latest post
-if ( ! $featured_query->have_posts() ) {
-	// Reset args to get the latest post
-	$featured_args = array(
-		'posts_per_page' => 1,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	);
-	$featured_query = new WP_Query( $featured_args );
+if ( empty( $featured_data ) && function_exists( 'obdc_simplex_news_get_front_page_featured_data' ) ) {
+        $featured_data = obdc_simplex_news_get_front_page_featured_data();
 }
 
-if ( $featured_query->have_posts() ) :
-	$featured_query->the_post();
+$hero_id = isset( $featured_data['hero_id'] ) ? (int) $featured_data['hero_id'] : 0;
+
+if ( $hero_id ) :
+        $title        = get_the_title( $hero_id );
+        $permalink    = get_permalink( $hero_id );
+        $thumbnail    = get_the_post_thumbnail( $hero_id, 'hero', array( 'alt' => esc_attr( $title ) ) );
+        $categories   = get_the_category( $hero_id );
+        $category     = ! empty( $categories ) ? $categories[0]->name : '';
+        $excerpt      = wp_trim_words( wp_strip_all_tags( get_the_excerpt( $hero_id ) ), 30 );
+        $author_id    = (int) get_post_field( 'post_author', $hero_id );
+        $author_name  = get_the_author_meta( 'display_name', $author_id );
+        $published_at = human_time_diff( get_post_time( 'U', false, $hero_id ), current_time( 'timestamp' ) );
+        $cidade       = get_post_meta( $hero_id, 'cidade', true );
 ?>
 <article class="hero-card" aria-labelledby="lead-title">
-	<a href="<?php the_permalink(); ?>" class="media">
-		<?php the_post_thumbnail( 'hero', array( 'alt' => esc_attr( get_the_title() ) ) ); ?>
-	</a>
-	<div class="body">
-		<div class="kicker">
-			<?php 
-			$categories = get_the_category();
-			if ( ! empty( $categories ) ) {
-				echo esc_html( $categories[0]->name );
-			}
-			?>
-		</div>
-		<h2 id="lead-title" class="title-xl"><a href="<?php the_permalink(); ?>"> <?php the_title(); ?></a></h2>
-		<p class="excerpt-hero"> <?php echo wp_trim_words( get_the_excerpt(), 30 ); ?> </p>
-		<p class="meta">Por <?php the_author(); ?> • <?php echo human_time_diff( get_the_time('U'), current_time('timestamp') ); ?> atrás • <?php echo esc_html( get_post_meta( get_the_ID(), 'cidade', true ) ); ?></p>
-	</div>
+        <a href="<?php echo esc_url( $permalink ); ?>" class="media">
+                <?php echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        </a>
+        <div class="body">
+                <div class="kicker">
+                        <?php if ( $category ) : ?>
+                                <?php echo esc_html( $category ); ?>
+                        <?php endif; ?>
+                </div>
+                <h2 id="lead-title" class="title-xl"><a href="<?php echo esc_url( $permalink ); ?>"> <?php echo esc_html( $title ); ?></a></h2>
+                <?php if ( $excerpt ) : ?>
+                        <p class="excerpt-hero"> <?php echo esc_html( $excerpt ); ?> </p>
+                <?php endif; ?>
+                <p class="meta">
+                        <?php
+                        $meta_parts = array();
+
+                        if ( $author_name ) {
+                                $meta_parts[] = sprintf(
+                                        /* translators: %s: author name */
+                                        esc_html__( 'Por %s', 'obdc-simplex-news' ),
+                                        esc_html( $author_name )
+                                );
+                        }
+
+                        if ( $published_at ) {
+                                /* translators: %s: human-readable time difference (e.g. "2 horas"). */
+                                $meta_parts[] = sprintf( esc_html__( '%s atrás', 'obdc-simplex-news' ), esc_html( $published_at ) );
+                        }
+
+                        if ( $cidade ) {
+                                $meta_parts[] = esc_html( $cidade );
+                        }
+
+                        echo implode( ' • ', array_filter( $meta_parts ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        ?>
+                </p>
+        </div>
 </article>
-<?php
-	wp_reset_postdata();
-endif;
-?>
+<?php endif; ?>
