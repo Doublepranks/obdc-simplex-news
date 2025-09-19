@@ -15,97 +15,39 @@
 get_header();
 
 $today              = current_time( 'Ymd' );
-$today_int          = (int) $today;
 $hero_post_id       = 0;
 $hero_is_pinned     = false;
 $highlight_post_ids = array();
 $excluded_post_ids  = array();
-$pinned_candidates  = array();
 
-// Collect potential hero/highlight posts based on data_destaque meta values.
-$pinned_args = array(
+// Determine the hero post ID (pinned by data_destaque or fallback to latest post).
+$hero_args = array(
         'post_type'           => 'post',
         'post_status'         => 'publish',
-        'posts_per_page'      => -1,
+        'posts_per_page'      => 1,
+        'meta_key'            => 'data_destaque',
         'meta_query'          => array(
                 array(
                         'key'     => 'data_destaque',
-                        'compare' => 'EXISTS',
+                        'value'   => $today,
+                        'compare' => '>=',
+                        'type'    => 'NUMERIC',
                 ),
+        ),
+        'orderby'             => array(
+                'meta_value_num' => 'DESC',
+                'date'           => 'DESC',
         ),
         'fields'              => 'ids',
         'no_found_rows'       => true,
         'ignore_sticky_posts' => true,
 );
 
-$pinned_query = new WP_Query( $pinned_args );
+$hero_query = new WP_Query( $hero_args );
 
-if ( $pinned_query->have_posts() ) {
-        foreach ( $pinned_query->posts as $candidate_id ) {
-                $candidate_id   = (int) $candidate_id;
-                $raw_meta_value = get_post_meta( $candidate_id, 'data_destaque', true );
-                $sanitized_meta = preg_replace( '/\D/', '', (string) $raw_meta_value );
-
-                if ( '' === $sanitized_meta ) {
-                        continue;
-                }
-
-                $sanitized_value = (int) $sanitized_meta;
-
-                if ( $sanitized_value < $today_int ) {
-                        continue;
-                }
-
-                $post_object = get_post( $candidate_id );
-
-                if ( ! $post_object ) {
-                        continue;
-                }
-
-                $post_date = $post_object->post_date_gmt;
-
-                if ( empty( $post_date ) || '0000-00-00 00:00:00' === $post_date ) {
-                        $post_date = $post_object->post_date;
-                }
-
-                $post_timestamp = $post_date ? strtotime( $post_date ) : 0;
-
-                if ( false === $post_timestamp ) {
-                        $post_timestamp = 0;
-                }
-
-                $pinned_candidates[] = array(
-                        'id'    => $candidate_id,
-                        'value' => $sanitized_value,
-                        'date'  => $post_timestamp,
-                );
-        }
-}
-
-if ( ! empty( $pinned_candidates ) ) {
-        usort(
-                $pinned_candidates,
-                static function ( $a, $b ) {
-                        if ( $a['value'] === $b['value'] ) {
-                                if ( $a['date'] === $b['date'] ) {
-                                        return 0;
-                                }
-
-                                return ( $a['date'] > $b['date'] ) ? -1 : 1;
-                        }
-
-                        return ( $a['value'] > $b['value'] ) ? -1 : 1;
-                }
-        );
-
-        $hero_candidate   = array_shift( $pinned_candidates );
-        $hero_post_id     = isset( $hero_candidate['id'] ) ? (int) $hero_candidate['id'] : 0;
-        $hero_is_pinned   = ( $hero_post_id > 0 );
-        $remaining_ids    = array_values( wp_list_pluck( $pinned_candidates, 'id' ) );
-        $highlight_post_ids = array_map(
-                'intval',
-                array_slice( $remaining_ids, 0, 2 )
-        );
+if ( $hero_query->have_posts() ) {
+        $hero_post_id   = (int) $hero_query->posts[0];
+        $hero_is_pinned = true;
 }
 
 if ( ! $hero_post_id ) {
@@ -129,6 +71,38 @@ if ( ! $hero_post_id ) {
 
 if ( $hero_post_id ) {
         $excluded_post_ids[] = $hero_post_id;
+}
+
+// Determine highlights (prioritise other pinned posts when hero is pinned).
+if ( $hero_is_pinned && $hero_post_id ) {
+        $pinned_highlights_query = new WP_Query(
+                array(
+                        'post_type'           => 'post',
+                        'post_status'         => 'publish',
+                        'posts_per_page'      => 2,
+                        'meta_key'            => 'data_destaque',
+                        'meta_query'          => array(
+                                array(
+                                        'key'     => 'data_destaque',
+                                        'value'   => $today,
+                                        'compare' => '>=',
+                                        'type'    => 'NUMERIC',
+                                ),
+                        ),
+                        'post__not_in'        => array( $hero_post_id ),
+                        'orderby'             => array(
+                                'meta_value_num' => 'DESC',
+                                'date'           => 'DESC',
+                        ),
+                        'fields'              => 'ids',
+                        'no_found_rows'       => true,
+                        'ignore_sticky_posts' => true,
+                )
+        );
+
+        if ( $pinned_highlights_query->have_posts() ) {
+                $highlight_post_ids = array_map( 'intval', $pinned_highlights_query->posts );
+        }
 }
 
 $needed_highlights = max( 0, 2 - count( $highlight_post_ids ) );
