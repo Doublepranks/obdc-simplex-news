@@ -124,13 +124,23 @@ function obdc_simplex_news_scripts() {
 	// Load font-display swap (redundant but ensures it)
 	wp_add_inline_style( 'obdc-simplex-news-style', '.font-inter { font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif; } .font-merriweather { font-family: "Merriweather", Georgia, serif; }' );
 
-	// Load JavaScript file if needed (e.g., for dynamic behavior)
-	// wp_enqueue_script( 'obdc-simplex-news-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+        // Load JavaScript file if needed (e.g., for dynamic behavior)
+        // wp_enqueue_script( 'obdc-simplex-news-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
 
-	// Add skip link focus fix
-	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
-		wp_enqueue_script( 'comment-reply' );
-	}
+        if ( is_front_page() ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-front-page',
+                        get_template_directory_uri() . '/js/front-page.js',
+                        array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
+        // Add skip link focus fix
+        if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+                wp_enqueue_script( 'comment-reply' );
+        }
 }
 add_action( 'wp_enqueue_scripts', 'obdc_simplex_news_scripts' );
 
@@ -189,3 +199,79 @@ require get_template_directory() . '/inc/structured-data.php';
  * Load SEO meta tags
  */
 require get_template_directory() . '/inc/seo-meta.php';
+
+
+/**
+ * Register REST endpoint for loading additional front page posts.
+ */
+function obdc_simplex_news_register_front_page_feed_route() {
+        register_rest_route(
+                'obdc-simplex-news/v1',
+                '/front-page-feed',
+                array(
+                        'methods'             => WP_REST_Server::READABLE,
+                        'callback'            => 'obdc_simplex_news_front_page_feed_callback',
+                        'permission_callback' => '__return_true',
+                        'args'                => array(
+                                'page' => array(
+                                        'default'           => 1,
+                                        'sanitize_callback' => 'absint',
+                                ),
+                        ),
+                )
+        );
+}
+add_action( 'rest_api_init', 'obdc_simplex_news_register_front_page_feed_route' );
+
+
+/**
+ * Handle REST requests for the front page feed pagination.
+ *
+ * @param WP_REST_Request $request The current REST request object.
+ * @return WP_REST_Response|array Response containing rendered markup and pagination data.
+ */
+function obdc_simplex_news_front_page_feed_callback( WP_REST_Request $request ) {
+        $page = max( 1, absint( $request->get_param( 'page' ) ) );
+
+        $args = array(
+                'posts_per_page' => (int) get_option( 'posts_per_page' ),
+                'post_status'    => 'publish',
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+                'paged'          => $page,
+                'no_found_rows'  => false,
+        );
+
+        if ( function_exists( 'obdc_simplex_news_get_front_page_excluded_post_ids' ) ) {
+                $excluded_post_ids = obdc_simplex_news_get_front_page_excluded_post_ids();
+
+                if ( ! empty( $excluded_post_ids ) ) {
+                        $args['post__not_in'] = $excluded_post_ids;
+                }
+        }
+
+        $query = new WP_Query( $args );
+
+        ob_start();
+
+        if ( $query->have_posts() ) {
+                while ( $query->have_posts() ) {
+                        $query->the_post();
+                        get_template_part( 'template-parts/content/card' );
+                }
+        }
+
+        $html        = ob_get_clean();
+        $max_pages   = (int) $query->max_num_pages;
+        $found_posts = (int) $query->found_posts;
+
+        wp_reset_postdata();
+
+        return rest_ensure_response(
+                array(
+                        'html'       => $html,
+                        'maxPages'   => $max_pages,
+                        'foundPosts' => $found_posts,
+                )
+        );
+}
