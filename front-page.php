@@ -14,277 +14,125 @@
 
 get_header();
 
-$today              = current_time( 'Ymd' );
-$hero_post_id       = 0;
-$hero_is_pinned     = false;
-$highlight_post_ids = array();
-$excluded_post_ids  = array();
+// --- Logic to get Hero and Highlights post IDs for exclusion ---
+$excluded_post_ids = array();
 
-// Determine the hero post ID (pinned by data_destaque or fallback to latest post).
-$hero_args = array(
-        'post_type'           => 'post',
-        'post_status'         => 'publish',
-        'posts_per_page'      => 1,
-        'meta_key'            => 'data_destaque',
-        'meta_query'          => array(
-                array(
-                        'key'     => 'data_destaque',
-                        'value'   => $today,
-                        'compare' => '>=',
-                        'type'    => 'NUMERIC',
-                ),
-        ),
-        'orderby'             => array(
-                'meta_value_num' => 'DESC',
-                'date'           => 'DESC',
-        ),
-        'fields'              => 'ids',
-        'no_found_rows'       => true,
-        'ignore_sticky_posts' => true,
-);
+// 1. Get the ID of the HERO post (featured or latest)
+$hero_post_id = null;
+$featured_hero_query = new WP_Query( array(
+	'posts_per_page' => 1,
+	'meta_key'       => '_featured_on_home',
+	'meta_value'     => '1',
+	'orderby'        => 'date',
+	'order'          => 'DESC',
+	'fields'         => 'ids', // Only get the ID
+) );
 
-$hero_query = new WP_Query( $hero_args );
-
-if ( $hero_query->have_posts() ) {
-        $hero_post_id   = (int) $hero_query->posts[0];
-        $hero_is_pinned = true;
+if ( $featured_hero_query->have_posts() ) {
+	$hero_post_id = $featured_hero_query->posts[0];
+} else {
+	// Fallback: Get the latest post ID
+	$latest_hero_query = new WP_Query( array(
+		'posts_per_page' => 1,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'fields'         => 'ids',
+	) );
+	if ( $latest_hero_query->have_posts() ) {
+		$hero_post_id = $latest_hero_query->posts[0];
+	}
 }
-
-if ( ! $hero_post_id ) {
-        $latest_query = new WP_Query(
-                array(
-                        'post_type'           => 'post',
-                        'post_status'         => 'publish',
-                        'posts_per_page'      => 1,
-                        'orderby'             => 'date',
-                        'order'               => 'DESC',
-                        'fields'              => 'ids',
-                        'no_found_rows'       => true,
-                        'ignore_sticky_posts' => true,
-                )
-        );
-
-        if ( $latest_query->have_posts() ) {
-                $hero_post_id = (int) $latest_query->posts[0];
-        }
-}
+wp_reset_postdata(); // Good practice after WP_Query
 
 if ( $hero_post_id ) {
-        $excluded_post_ids[] = $hero_post_id;
+	$excluded_post_ids[] = $hero_post_id;
 }
 
-// Determine highlights (prioritise other pinned posts when hero is pinned).
-if ( $hero_is_pinned && $hero_post_id ) {
-        $pinned_highlights_query = new WP_Query(
-                array(
-                        'post_type'           => 'post',
-                        'post_status'         => 'publish',
-                        'posts_per_page'      => 2,
-                        'meta_key'            => 'data_destaque',
-                        'meta_query'          => array(
-                                array(
-                                        'key'     => 'data_destaque',
-                                        'value'   => $today,
-                                        'compare' => '>=',
-                                        'type'    => 'NUMERIC',
-                                ),
-                        ),
-                        'post__not_in'        => array( $hero_post_id ),
-                        'orderby'             => array(
-                                'meta_value_num' => 'DESC',
-                                'date'           => 'DESC',
-                        ),
-                        'fields'              => 'ids',
-                        'no_found_rows'       => true,
-                        'ignore_sticky_posts' => true,
-                )
-        );
+// 2. Get the IDs of the HIGHLIGHTS posts (2 latest, excluding the HERO)
+$highlights_post_ids = array();
+$highlights_args = array(
+	'posts_per_page' => 2,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
+	'fields'         => 'ids', // Only get the IDs
+	'post_status'    => 'publish',
+);
 
-        if ( $pinned_highlights_query->have_posts() ) {
-                $highlight_post_ids = array_map( 'intval', $pinned_highlights_query->posts );
-        }
+if ( ! empty( $hero_post_id ) ) {
+	$highlights_args['post__not_in'] = array( $hero_post_id );
 }
 
-$needed_highlights = max( 0, 2 - count( $highlight_post_ids ) );
-
-if ( $needed_highlights > 0 ) {
-        $fallback_exclusions = array_filter(
-                array_map(
-                        'intval',
-                        array_merge( array( $hero_post_id ), $highlight_post_ids )
-                )
-        );
-
-        $fallback_args = array(
-                'post_type'           => 'post',
-                'post_status'         => 'publish',
-                'posts_per_page'      => $needed_highlights,
-                'orderby'             => 'date',
-                'order'               => 'DESC',
-                'fields'              => 'ids',
-                'no_found_rows'       => true,
-                'ignore_sticky_posts' => true,
-        );
-
-        if ( ! empty( $fallback_exclusions ) ) {
-                $fallback_args['post__not_in'] = $fallback_exclusions;
-        }
-
-        $fallback_query = new WP_Query( $fallback_args );
-
-        if ( $fallback_query->have_posts() ) {
-                $highlight_post_ids = array_merge(
-                        $highlight_post_ids,
-                        array_map( 'intval', $fallback_query->posts )
-                );
-        }
+$highlights_query = new WP_Query( $highlights_args );
+if ( $highlights_query->have_posts() ) {
+	$highlights_post_ids = $highlights_query->posts;
+	$excluded_post_ids = array_merge( $excluded_post_ids, $highlights_post_ids );
 }
+wp_reset_postdata(); // Good practice after WP_Query
 
-if ( ! empty( $highlight_post_ids ) ) {
-        $excluded_post_ids = array_merge( $excluded_post_ids, $highlight_post_ids );
-}
+// Remove any potential duplicates and ensure IDs are integers
+$excluded_post_ids = array_unique( array_map( 'intval', $excluded_post_ids ) );
 
-$excluded_post_ids = array_values( array_unique( array_filter( array_map( 'intval', $excluded_post_ids ) ) ) );
+// --- End of exclusion logic ---
 
-$paged = get_query_var( 'paged' );
-if ( ! $paged ) {
-        $paged = get_query_var( 'page' );
-}
-
-$paged            = $paged ? (int) $paged : 1;
-$paged            = max( 1, $paged );
-$max_feed_pages   = 3; // Limit feed pagination to the first three pages (current + two extra).
-$paged            = min( $paged, $max_feed_pages );
 ?>
 
 <main id="main" class="site-main">
-        <div class="wrap">
+	<div class="wrap">
 
-                <!-- HERO + highlights + ad -->
-                <section class="grid" aria-label="Destaques">
-                        <div class="hero">
-                                <?php
-                                if ( $hero_post_id ) :
-                                        $hero_display_query = new WP_Query(
-                                                array(
-                                                        'post_type'           => 'post',
-                                                        'post_status'         => 'publish',
-                                                        'posts_per_page'      => 1,
-                                                        'p'                   => $hero_post_id,
-                                                        'no_found_rows'       => true,
-                                                        'ignore_sticky_posts' => true,
-                                                )
-                                        );
+		<!-- HERO + highlights + ad -->
+		<section class="grid" aria-label="Destaques">
+			<div class="hero">
+				<!-- Lead story -->
+				<?php get_template_part( 'template-parts/home/hero' ); ?>
+			</div>
+			<aside class="stack" aria-label="Complementos">
+				<!-- Secondary highlights -->
+				<?php get_template_part( 'template-parts/home/highlights' ); ?>
+			</aside>
+		</section>
 
-                                        if ( $hero_display_query->have_posts() ) :
-                                                while ( $hero_display_query->have_posts() ) :
-                                                        $hero_display_query->the_post();
-                                                        get_template_part( 'template-parts/home/hero' );
-                                                endwhile;
-                                        endif;
+		<!-- Ad slot topo -->
+		<?php get_template_part( 'template-parts/ads/top-home' ); ?>
 
-                                        wp_reset_postdata();
-                                endif;
-                                ?>
-                        </div>
-                        <aside class="stack" aria-label="Complementos">
-                                <?php
-                                if ( ! empty( $highlight_post_ids ) ) :
-                                        $highlights_display_query = new WP_Query(
-                                                array(
-                                                        'post_type'           => 'post',
-                                                        'post_status'         => 'publish',
-                                                        'posts_per_page'      => count( $highlight_post_ids ),
-                                                        'post__in'            => $highlight_post_ids,
-                                                        'orderby'             => 'post__in',
-                                                        'no_found_rows'       => true,
-                                                        'ignore_sticky_posts' => true,
-                                                )
-                                        );
+		<!-- Feed + sidebar -->
+		<section class="content" aria-label="Últimas">
+			<div class="feed">
+				<!-- Feed of cards -->
+				<?php
+				// Standard loop for latest posts, excluding Hero and Highlights
+				$args = array(
+					'posts_per_page' => get_option( 'posts_per_page' ), // Use default posts per page setting
+					'post_status'    => 'publish',
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+				);
 
-                                        if ( $highlights_display_query->have_posts() ) :
-                                                global $wp_query;
-                                                $previous_wp_query = $wp_query;
-                                                $wp_query          = $highlights_display_query;
+				if ( ! empty( $excluded_post_ids ) ) {
+					$args['post__not_in'] = $excluded_post_ids;
+				}
 
-                                                while ( $highlights_display_query->have_posts() ) :
-                                                        $highlights_display_query->the_post();
-                                                        get_template_part( 'template-parts/home/highlights' );
-                                                endwhile;
+				$latest_posts = new WP_Query( $args );
 
-                                                $wp_query = $previous_wp_query;
-                                        endif;
+				if ( $latest_posts->have_posts() ) :
+					while ( $latest_posts->have_posts() ) : $latest_posts->the_post();
+						get_template_part( 'template-parts/content/card' );
+					endwhile;
+				endif;
 
-                                        wp_reset_postdata();
-                                endif;
-                                ?>
-                        </aside>
-                </section>
+				wp_reset_postdata();
+				?>
 
-                <!-- Ad slot topo -->
-                <?php get_template_part( 'template-parts/ads/top-home' ); ?>
+				<!-- Load more button -->
+				<button class="loadmore" type="button" aria-label="Carregar mais">Carregar mais</button>
+			</div>
 
-                <!-- Feed + sidebar -->
-                <section class="content" aria-label="Últimas">
-                        <div class="feed">
-                                <?php
-                                $feed_args = array(
-                                        'post_type'           => 'post',
-                                        'post_status'         => 'publish',
-                                        'posts_per_page'      => get_option( 'posts_per_page' ),
-                                        'paged'               => $paged,
-                                        'orderby'             => 'date',
-                                        'order'               => 'DESC',
-                                        'ignore_sticky_posts' => true,
-                                );
+			<!-- Sidebar - Mais lidas -->
+			<aside class="sidebar" aria-label="Mais lidas">
+				<?php get_template_part( 'template-parts/sidebar/most-read' ); ?>
+			</aside>
+		</section>
 
-                                if ( ! empty( $excluded_post_ids ) ) {
-                                        $feed_args['post__not_in'] = $excluded_post_ids;
-                                }
-
-                                $feed_query = new WP_Query( $feed_args );
-
-                                if ( $feed_query->have_posts() ) :
-                                        while ( $feed_query->have_posts() ) :
-                                                $feed_query->the_post();
-                                                get_template_part( 'template-parts/content/card' );
-                                        endwhile;
-                                else :
-                                        ?>
-                                        <p><?php esc_html_e( 'Nenhuma publicação encontrada.', 'obdc-simplex-news' ); ?></p>
-                                        <?php
-                                endif;
-
-                                $max_pages_raw = (int) $feed_query->max_num_pages;
-
-                                wp_reset_postdata();
-
-                                $max_allowed_pages  = min( $max_pages_raw, $max_feed_pages );
-                                $loadmore_disabled  = ( $paged >= $max_allowed_pages );
-                                $remaining_pages = max( 0, $max_allowed_pages - $paged );
-                                ?>
-
-                                <button
-                                        class="loadmore"
-                                        type="button"
-                                        aria-label="Carregar mais"
-                                        <?php disabled( $loadmore_disabled ); ?>
-                                        data-current-page="<?php echo esc_attr( $paged ); ?>"
-                                        data-max-pages="<?php echo esc_attr( $max_allowed_pages ); ?>"
-                                        data-total-pages="<?php echo esc_attr( $max_pages_raw ); ?>"
-                                        data-pages-remaining="<?php echo esc_attr( $remaining_pages ); ?>"
-                                >
-                                        <?php esc_html_e( 'Carregar mais', 'obdc-simplex-news' ); ?>
-                                </button>
-                        </div>
-
-                        <!-- Sidebar - Mais lidas -->
-                        <aside class="sidebar" aria-label="Mais lidas">
-                                <?php get_template_part( 'template-parts/sidebar/most-read' ); ?>
-                        </aside>
-                </section>
-
-        </div><!-- .wrap -->
+	</div><!-- .wrap -->
 </main><!-- #main -->
 
 <?php
