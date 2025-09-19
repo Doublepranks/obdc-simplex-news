@@ -14,65 +14,16 @@
 
 get_header();
 
-// --- Logic to get Hero and Highlights post IDs for exclusion ---
 $excluded_post_ids = array();
 
-// 1. Get the ID of the HERO post (featured or latest)
-$hero_post_id = null;
-$featured_hero_query = new WP_Query( array(
-	'posts_per_page' => 1,
-	'meta_key'       => '_featured_on_home',
-	'meta_value'     => '1',
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-	'fields'         => 'ids', // Only get the ID
-) );
-
-if ( $featured_hero_query->have_posts() ) {
-	$hero_post_id = $featured_hero_query->posts[0];
-} else {
-	// Fallback: Get the latest post ID
-	$latest_hero_query = new WP_Query( array(
-		'posts_per_page' => 1,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'fields'         => 'ids',
-	) );
-	if ( $latest_hero_query->have_posts() ) {
-		$hero_post_id = $latest_hero_query->posts[0];
-	}
-}
-wp_reset_postdata(); // Good practice after WP_Query
-
-if ( $hero_post_id ) {
-	$excluded_post_ids[] = $hero_post_id;
+if ( function_exists( 'obdc_simplex_news_get_front_page_excluded_post_ids' ) ) {
+        $excluded_post_ids = obdc_simplex_news_get_front_page_excluded_post_ids();
 }
 
-// 2. Get the IDs of the HIGHLIGHTS posts (2 latest, excluding the HERO)
-$highlights_post_ids = array();
-$highlights_args = array(
-	'posts_per_page' => 2,
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-	'fields'         => 'ids', // Only get the IDs
-	'post_status'    => 'publish',
-);
-
-if ( ! empty( $hero_post_id ) ) {
-	$highlights_args['post__not_in'] = array( $hero_post_id );
-}
-
-$highlights_query = new WP_Query( $highlights_args );
-if ( $highlights_query->have_posts() ) {
-	$highlights_post_ids = $highlights_query->posts;
-	$excluded_post_ids = array_merge( $excluded_post_ids, $highlights_post_ids );
-}
-wp_reset_postdata(); // Good practice after WP_Query
-
-// Remove any potential duplicates and ensure IDs are integers
-$excluded_post_ids = array_unique( array_map( 'intval', $excluded_post_ids ) );
-
-// --- End of exclusion logic ---
+$feed_endpoint   = rest_url( 'obdc-simplex-news/v1/front-page-feed' );
+$rest_nonce      = wp_create_nonce( 'wp_rest' );
+$load_more_text  = __( 'Carregar mais', 'obdc-simplex-news' );
+$loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
 
 ?>
 
@@ -96,35 +47,59 @@ $excluded_post_ids = array_unique( array_map( 'intval', $excluded_post_ids ) );
 
 		<!-- Feed + sidebar -->
 		<section class="content" aria-label="Últimas">
-			<div class="feed">
-				<!-- Feed of cards -->
-				<?php
-				// Standard loop for latest posts, excluding Hero and Highlights
-				$args = array(
-					'posts_per_page' => get_option( 'posts_per_page' ), // Use default posts per page setting
-					'post_status'    => 'publish',
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-				);
+                        <div class="feed" data-feed>
+                                <div class="feed__items" data-feed-items>
+                                        <?php
+                                        // Standard loop for latest posts, excluding Hero and Highlights.
+                                        $args = array(
+                                                'posts_per_page' => get_option( 'posts_per_page' ),
+                                                'post_status'    => 'publish',
+                                                'orderby'        => 'date',
+                                                'order'          => 'DESC',
+                                                'paged'          => 1,
+                                                'no_found_rows'  => false,
+                                        );
 
-				if ( ! empty( $excluded_post_ids ) ) {
-					$args['post__not_in'] = $excluded_post_ids;
-				}
+                                        if ( ! empty( $excluded_post_ids ) ) {
+                                                $args['post__not_in'] = $excluded_post_ids;
+                                        }
 
-				$latest_posts = new WP_Query( $args );
+                                        $latest_posts = new WP_Query( $args );
+                                        $max_pages    = max( 1, (int) $latest_posts->max_num_pages );
 
-				if ( $latest_posts->have_posts() ) :
-					while ( $latest_posts->have_posts() ) : $latest_posts->the_post();
-						get_template_part( 'template-parts/content/card' );
-					endwhile;
-				endif;
+                                        if ( $latest_posts->have_posts() ) :
+                                                while ( $latest_posts->have_posts() ) :
+                                                        $latest_posts->the_post();
+                                                        get_template_part( 'template-parts/content/card' );
+                                                endwhile;
+                                        endif;
 
-				wp_reset_postdata();
-				?>
+                                        wp_reset_postdata();
+                                        ?>
+                                </div>
 
-				<!-- Load more button -->
-				<button class="loadmore" type="button" aria-label="Carregar mais">Carregar mais</button>
-			</div>
+                                <?php
+                                $button_disabled   = $max_pages <= 1;
+                                $button_classes    = 'loadmore' . ( $button_disabled ? ' is-disabled' : '' );
+                                $button_attributes = $button_disabled ? ' disabled aria-disabled="true"' : ' aria-disabled="false"';
+                                ?>
+
+                                <!-- Load more button -->
+                                <button
+                                        class="<?php echo esc_attr( $button_classes ); ?>"
+                                        type="button"
+                                        aria-label="<?php echo esc_attr( $load_more_text ); ?>"
+                                        data-endpoint="<?php echo esc_url( $feed_endpoint ); ?>"
+                                        data-nonce="<?php echo esc_attr( $rest_nonce ); ?>"
+                                        data-current-page="1"
+                                        data-max-pages="<?php echo esc_attr( $max_pages ); ?>"
+                                        data-button-text="<?php echo esc_attr( $load_more_text ); ?>"
+                                        data-loading-text="<?php echo esc_attr( $loading_text ); ?>"
+                                        <?php echo $button_attributes; ?>
+                                >
+                                        <?php echo esc_html( $load_more_text ); ?>
+                                </button>
+                        </div>
 
 			<!-- Sidebar - Mais lidas -->
 			<aside class="sidebar" aria-label="Mais lidas">
