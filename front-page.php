@@ -87,10 +87,7 @@ $loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
                                         ?>
                                 </div>
 
-                                <div class="feed__sentinel" data-feed-sentinel aria-hidden="true"></div>
-
                                 <?php
-                                $auto_load_limit   = 2;
                                 $button_disabled   = $max_pages <= 1;
                                 $button_classes    = 'loadmore' . ( $button_disabled ? ' is-disabled' : '' );
                                 $button_attributes = $button_disabled ? ' disabled aria-disabled="true"' : ' aria-disabled="false"';
@@ -107,36 +104,13 @@ $loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
                                         data-max-pages="<?php echo esc_attr( $max_pages ); ?>"
                                         data-button-text="<?php echo esc_attr( $load_more_text ); ?>"
                                         data-loading-text="<?php echo esc_attr( $loading_text ); ?>"
-                                        data-auto-load-limit="<?php echo esc_attr( $auto_load_limit ); ?>"
                                         <?php echo $button_attributes; ?>
                                 >
                                         <?php echo esc_html( $load_more_text ); ?>
                                 </button>
-
-                                <?php if ( $max_pages > 1 ) : ?>
-                                        <nav
-                                                class="feed__pagination feed__pagination--fallback"
-                                                aria-label="<?php echo esc_attr__( 'Paginação', 'obdc-simplex-news' ); ?>"
-                                                data-feed-pagination-fallback
-                                        >
-                                                <?php
-                                                echo wp_kses_post(
-                                                        paginate_links(
-                                                                array(
-                                                                        'total'     => $max_pages,
-                                                                        'current'   => 1,
-                                                                        'type'      => 'list',
-                                                                        'prev_text' => __( 'Anterior', 'obdc-simplex-news' ),
-                                                                        'next_text' => __( 'Próximo', 'obdc-simplex-news' ),
-                                                                )
-                                                        )
-                                                );
-                                                ?>
-                                        </nav>
-                                <?php endif; ?>
                         </div>
 
-                        <!-- Sidebar - Mais lidas -->
+			<!-- Sidebar - Mais lidas -->
 			<aside class="sidebar" aria-label="Mais lidas">
 				<?php get_template_part( 'template-parts/sidebar/most-read' ); ?>
 			</aside>
