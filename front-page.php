@@ -29,10 +29,12 @@ if ( ! empty( $featured_data['excluded_ids'] ) ) {
         $excluded_post_ids = obdc_simplex_news_get_front_page_excluded_post_ids();
 }
 
-$feed_endpoint   = rest_url( 'obdc-simplex-news/v1/front-page-feed' );
-$rest_nonce      = wp_create_nonce( 'wp_rest' );
-$load_more_text  = __( 'Carregar mais', 'obdc-simplex-news' );
-$loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
+$feed_endpoint    = rest_url( 'obdc-simplex-news/v1/front-page-feed' );
+$rest_nonce       = wp_create_nonce( 'wp_rest' );
+$load_more_text   = __( 'Carregar mais', 'obdc-simplex-news' );
+$loading_text     = __( 'Carregando…', 'obdc-simplex-news' );
+$auto_load_limit  = apply_filters( 'obdc_simplex_news_front_page_autoload_limit', 2 );
+$auto_load_limit  = max( 0, absint( $auto_load_limit ) );
 
 ?>
 
@@ -94,6 +96,8 @@ $loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
                                 ?>
 
                                 <!-- Load more button -->
+                                <div class="feed__sentinel" data-feed-sentinel aria-hidden="true"></div>
+
                                 <button
                                         class="<?php echo esc_attr( $button_classes ); ?>"
                                         type="button"
@@ -104,6 +108,7 @@ $loading_text    = __( 'Carregando…', 'obdc-simplex-news' );
                                         data-max-pages="<?php echo esc_attr( $max_pages ); ?>"
                                         data-button-text="<?php echo esc_attr( $load_more_text ); ?>"
                                         data-loading-text="<?php echo esc_attr( $loading_text ); ?>"
+                                        data-autoload-limit="<?php echo esc_attr( $auto_load_limit ); ?>"
                                         <?php echo $button_attributes; ?>
                                 >
                                         <?php echo esc_html( $load_more_text ); ?>

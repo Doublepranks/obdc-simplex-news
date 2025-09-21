@@ -384,9 +384,22 @@ main {
 	font-size: .7rem;
 }
 
+.feed__sentinel {
+        width: 100%;
+        min-height: 4px;
+        visibility: hidden;
+        pointer-events: none;
+}
+
+.loadmore.is-hidden {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+}
+
 .loadmore:hover {
-	background: #f9fafb;
-	border-color: #d1d5db;
+        background: #f9fafb;
+        border-color: #d1d5db;
 }
 
 /* Footer */
