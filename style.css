@@ -384,6 +384,10 @@ main {
 	font-size: .7rem;
 }
 
+.feed__sentinel {
+        min-height: 1px;
+}
+
 .loadmore.is-hidden {
         visibility: hidden;
         opacity: 0;
