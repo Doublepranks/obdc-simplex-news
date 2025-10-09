@@ -12,6 +12,7 @@
 
 get_header(); ?>
 
+<main id="main" class="site-main">
 	<div class="wrap">
 
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
@@ -28,6 +29,8 @@ get_header(); ?>
 			</footer><!-- .entry-footer -->
 		</article><!-- #post-<?php the_ID(); ?> -->
 
-	</div>
+	</div><!-- .wrap -->
+
+</main><!-- #main -->
 
 <?php get_footer(); ?>
