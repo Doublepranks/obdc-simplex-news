@@ -7,6 +7,7 @@
 
 get_header(); ?>
 
+<main id="main" class="site-main">
 	<div class="wrap">
 
 		<header class="page-header">
@@ -28,6 +29,8 @@ get_header(); ?>
 			</div>
 		</section>
 
-	</div>
+	</div><!-- .wrap -->
+
+</main><!-- #main -->
 
 <?php get_footer(); ?>

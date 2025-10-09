@@ -12,6 +12,7 @@
 
 get_header(); ?>
 
+<main id="main" class="site-main">
 	<div class="wrap">
 
 		<!-- Feed + sidebar -->
@@ -35,6 +36,8 @@ get_header(); ?>
 			</aside>
 		</section>
 
-	</div>
+	</div><!-- .wrap -->
+
+</main><!-- #main -->
 
 <?php get_footer(); ?>

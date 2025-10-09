@@ -64,24 +64,18 @@ function obdc_simplex_news_setup() {
 	) );
 
 	// Register navigation menus
-	register_nav_menus( array(
-		'primary' => __( 'Categorias', 'obdc-simplex-news' ),
-		'footer_1' => __( 'Rodapé: Seções', 'obdc-simplex-news' ),
-		'footer_2' => __( 'Rodapé: Serviços', 'obdc-simplex-news' ),
-		'footer_3' => __( 'Rodapé: Institucional', 'obdc-simplex-news' ),
-		'footer_4' => __( 'Rodapé: Legal', 'obdc-simplex-news' ),
-	) );
-
-	// Register sidebar for "Top Home" ad slot
-	register_sidebar( array(
-		'name'          => __( 'Top Home', 'obdc-simplex-news' ),
-		'id'            => 'top_home',
-		'description'   => __( 'Widget area for the top home ad slot.', 'obdc-simplex-news' ),
-		'before_widget' => '<div class="ad">',
-		'after_widget'  => '</div>',
-		'before_title'  => '<h2 class="widget-title screen-reader-text">',
-		'after_title'   => '</h2>',
-	) );
+	register_nav_menus(
+		array(
+			'main'                 => __( 'Menu Principal', 'obdc-simplex-news' ),
+			'footer-news'          => __( 'Rodape: Noticias', 'obdc-simplex-news' ),
+			'footer-brazil'        => __( 'Rodape: Brasil', 'obdc-simplex-news' ),
+			'footer-site'          => __( 'Rodape: Site', 'obdc-simplex-news' ),
+			'footer-opinion'       => __( 'Rodape: Opiniao', 'obdc-simplex-news' ),
+			'footer-sports'        => __( 'Rodape: Esportes', 'obdc-simplex-news' ),
+			'footer-entertainment' => __( 'Rodape: Entretenimento', 'obdc-simplex-news' ),
+			'footer-social'        => __( 'Rodape: Social', 'obdc-simplex-news' ),
+		)
+	);
 
 	// Add support for custom logo
 	add_theme_support( 'custom-logo', array(
@@ -92,6 +86,36 @@ function obdc_simplex_news_setup() {
 	) );
 }
 add_action( 'after_setup_theme', 'obdc_simplex_news_setup' );
+
+/**
+ * Register widget areas.
+ */
+function obdc_simplex_news_widgets_init() {
+	register_sidebar(
+		array(
+			'name'          => __( 'Top Home', 'obdc-simplex-news' ),
+			'id'            => 'top_home',
+			'description'   => __( 'Widget area for the top home ad slot.', 'obdc-simplex-news' ),
+			'before_widget' => '<div class="ad">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h2 class="widget-title screen-reader-text">',
+			'after_title'   => '</h2>',
+		)
+	);
+
+	register_sidebar(
+		array(
+			'name'          => __( 'Footer Branding', 'obdc-simplex-news' ),
+			'id'            => 'footer-branding',
+			'description'   => __( 'Widget area for footer logo or brand message.', 'obdc-simplex-news' ),
+			'before_widget' => '<div class="footer-branding-widget">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h2 class="widget-title screen-reader-text">',
+			'after_title'   => '</h2>',
+		)
+	);
+}
+add_action( 'widgets_init', 'obdc_simplex_news_widgets_init' );
 
 
 /**
@@ -124,8 +148,14 @@ function obdc_simplex_news_scripts() {
 	// Load font-display swap (redundant but ensures it)
 	wp_add_inline_style( 'obdc-simplex-news-style', '.font-inter { font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif; } .font-merriweather { font-family: "Merriweather", Georgia, serif; }' );
 
-        // Load JavaScript file if needed (e.g., for dynamic behavior)
-        // wp_enqueue_script( 'obdc-simplex-news-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+	// Global navigation interactions
+	wp_enqueue_script(
+		'obdc-simplex-news-navigation',
+		get_template_directory_uri() . '/js/navigation.js',
+		array(),
+		_S_VERSION,
+		true
+	);
 
         if ( is_front_page() ) {
                 wp_enqueue_script(
@@ -199,6 +229,7 @@ require get_template_directory() . '/inc/structured-data.php';
  * Load SEO meta tags
  */
 require get_template_directory() . '/inc/seo-meta.php';
+
 
 
 /**
