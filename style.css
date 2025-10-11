@@ -1349,6 +1349,7 @@ main {
 .author-hero__avatar {
 	display: flex;
 	justify-content: center;
+	margin-top: 50px;
 }
 
 .author-hero__avatar-img {
