@@ -166,7 +166,6 @@ get_header(); ?>
 			<section class="single-related" aria-label="<?php esc_attr_e( 'Conteúdo relacionado', 'obdc-simplex-news' ); ?>">
 				<div class="single-related__header">
 				<h2 class="single-related__title"><?php esc_html_e( 'Você pode gostar também', 'obdc-simplex-news' ); ?></h2>
-					<a class="single-related__more" href="<?php echo esc_url( home_url( '/blog' ) ); ?>"><?php esc_html_e( 'Ver mais', 'obdc-simplex-news' ); ?></a>
 				</div>
 				<div class="single-related__grid">
 				<?php

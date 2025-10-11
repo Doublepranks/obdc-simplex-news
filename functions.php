@@ -167,6 +167,16 @@ function obdc_simplex_news_scripts() {
                 );
         }
 
+        if ( is_author() ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-author-feed',
+                        get_template_directory_uri() . '/js/author-feed.js',
+                        array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
         // Add skip link focus fix
         if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
                 wp_enqueue_script( 'comment-reply' );
@@ -280,7 +290,6 @@ function obdc_simplex_news_front_page_feed_callback( WP_REST_Request $request ) 
                         $args['post__not_in'] = $excluded_post_ids;
                 }
         }
-
         $query = new WP_Query( $args );
 
         ob_start();
@@ -306,3 +315,151 @@ function obdc_simplex_news_front_page_feed_callback( WP_REST_Request $request ) 
                 )
         );
 }
+
+
+/**
+ * Register REST endpoint for loading additional author posts.
+ */
+function obdc_simplex_news_register_author_feed_route() {
+        register_rest_route(
+                'obdc-simplex-news/v1',
+                '/author-feed',
+                array(
+                        'methods'             => WP_REST_Server::READABLE,
+                        'callback'            => 'obdc_simplex_news_author_feed_callback',
+                        'permission_callback' => '__return_true',
+                        'args'                => array(
+                                'author' => array(
+                                        'required'          => true,
+                                        'sanitize_callback' => 'absint',
+                                ),
+                                'page'   => array(
+                                        'default'           => 1,
+                                        'sanitize_callback' => 'absint',
+                                ),
+                        ),
+                )
+        );
+}
+add_action( 'rest_api_init', 'obdc_simplex_news_register_author_feed_route' );
+
+
+/**
+ * Handle REST requests for the author archive feed pagination.
+ *
+ * @param WP_REST_Request $request REST request object.
+ * @return WP_REST_Response|WP_Error
+ */
+function obdc_simplex_news_author_feed_callback( WP_REST_Request $request ) {
+        $author_id = absint( $request->get_param( 'author' ) );
+
+        if ( ! $author_id || ! get_user_by( 'id', $author_id ) ) {
+                return new WP_Error(
+                        'obdc_author_not_found',
+                        __( 'Autor nao encontrado.', 'obdc-simplex-news' ),
+                        array( 'status' => 404 )
+                );
+        }
+
+        $page = max( 1, absint( $request->get_param( 'page' ) ) );
+
+        $args = array(
+                'post_type'      => 'post',
+                'post_status'    => 'publish',
+                'posts_per_page' => (int) get_option( 'posts_per_page' ),
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+                'paged'          => $page,
+                'author'         => $author_id,
+                'no_found_rows'  => false,
+        );
+
+        $query = new WP_Query( $args );
+
+        ob_start();
+
+        if ( $query->have_posts() ) {
+                while ( $query->have_posts() ) {
+                        $query->the_post();
+                        get_template_part( 'template-parts/author/card' );
+                }
+        }
+
+        $html        = ob_get_clean();
+        $max_pages   = (int) $query->max_num_pages;
+        $found_posts = (int) $query->found_posts;
+
+        wp_reset_postdata();
+
+        return rest_ensure_response(
+                array(
+                        'html'       => $html,
+                        'maxPages'   => $max_pages,
+                        'foundPosts' => $found_posts,
+                )
+        );
+}
+
+
+/**
+ * Redirect author archives of users that should not be exposed.
+ */
+function obdc_simplex_news_redirect_subscriber_author_archive() {
+        if ( ! is_author() ) {
+                return;
+        }
+
+        $author = get_queried_object();
+
+        if ( ! ( $author instanceof WP_User ) ) {
+                return;
+        }
+
+        if ( in_array( 'subscriber', (array) $author->roles, true ) ) {
+                $redirect_url = apply_filters(
+                        'obdc_simplex_news_subscriber_profile_url',
+                        home_url( '/' ),
+                        $author
+                );
+
+                wp_safe_redirect( $redirect_url );
+                exit;
+        }
+}
+add_action( 'template_redirect', 'obdc_simplex_news_redirect_subscriber_author_archive' );
+
+
+/**
+ * Prevent subscribers from accessing wp-admin.
+ */
+function obdc_simplex_news_block_subscriber_admin_access() {
+        if ( ! is_user_logged_in() || ! current_user_can( 'subscriber' ) ) {
+                return;
+        }
+
+        if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+                return;
+        }
+
+        $current_user = wp_get_current_user();
+        $redirect_url = apply_filters(
+                'obdc_simplex_news_subscriber_profile_url',
+                home_url( '/' ),
+                $current_user
+        );
+
+        wp_safe_redirect( $redirect_url );
+        exit;
+}
+add_action( 'admin_init', 'obdc_simplex_news_block_subscriber_admin_access' );
+
+
+/**
+ * Hide the admin bar for subscribers.
+ */
+function obdc_simplex_news_hide_admin_bar_for_subscribers() {
+        if ( current_user_can( 'subscriber' ) ) {
+                show_admin_bar( false );
+        }
+}
+add_action( 'after_setup_theme', 'obdc_simplex_news_hide_admin_bar_for_subscribers' );
