@@ -1,4 +1,4 @@
-/*
+﻿/*
 Theme Name: ObDC-simplex-news
 Theme URI: https://www.obrasildecima.com.br
 Author: Samuel Pantoja
@@ -292,14 +292,23 @@ header.masthead {
 	margin: 0;
 }
 
-.search {
+.masthead-search {
 	margin-left: auto;
 	display: flex;
 	align-items: center;
 	gap: 12px;
 }
 
-.search .search-field,
+.masthead-search__form {
+	flex: 1 1 auto;
+	display: flex;
+}
+
+.masthead-search__form > * {
+	width: 100%;
+}
+
+.masthead-search .search-field,
 .drawer-search .search-field {
 	padding: 10px 12px;
 	border: 1px solid var(--border);
@@ -308,14 +317,14 @@ header.masthead {
 	min-width: 0;
 }
 
-.search form,
+.masthead-search form,
 .drawer-search .search-form {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 }
 
-.search .search-submit,
+.masthead-search .search-submit,
 .drawer-search .search-submit {
 	padding: 10px 18px;
 	border: 0;
@@ -328,8 +337,8 @@ header.masthead {
 	transition: background .2s ease, transform .2s ease;
 }
 
-.search .search-submit:hover,
-.search .search-submit:focus,
+.masthead-search .search-submit:hover,
+.masthead-search .search-submit:focus,
 .drawer-search .search-submit:hover,
 .drawer-search .search-submit:focus {
 	background: var(--accent);
@@ -443,6 +452,15 @@ header.masthead {
 .drawer-search .search-form {
 	width: 100%;
 }
+
+.drawer-search__form {
+	display: flex;
+	width: 100%;
+}
+
+.drawer-search__form > * {
+	width: 100%;
+}
 	
 	@media (max-width: 768px) {
 	.masthead .row {
@@ -472,7 +490,7 @@ header.masthead {
 }
 
 @media (max-width: 768px) {
-	.masthead .search {
+	.masthead .masthead-search {
 		display: none;
 	}
 
@@ -1761,7 +1779,7 @@ main {
 	.card .thumb {
 		min-height: 140px;
 	}
-	.search input {
+	.masthead-search input {
 		min-width: 0;
 		width: 100%;
 	}
@@ -1819,4 +1837,56 @@ main {
 /* inicio dos estilos que sobrescrevem estilos padrão do wordpress */
 :where(figure) {
     margin: 0 0 0.2em;
+}
+.search-results-area {
+	margin-top: 2rem;
+}
+
+.search-results-area .feed {
+	display: grid;
+	gap: 14px;
+}
+
+.search-results__empty {
+	padding: 2rem;
+	text-align: center;
+	border-radius: 18px;
+	background: #f8fafc;
+	color: var(--muted);
+	font-size: 1rem;
+}
+
+.search-results__pagination {
+	margin: 2rem 0 3rem;
+	display: flex;
+	justify-content: center;
+}
+
+.search-results__header {
+	margin-bottom: 2.5rem;
+	text-align: center;
+}
+
+.search-results__title {
+	font-size: clamp(1.4rem, 2vw, 2rem);
+	font-weight: 800;
+	color: var(--brand);
+	margin: 0;
+}
+
+.search-results__term {
+	color: var(--accent);
+	font-weight: 900;
+}
+
+.search-results__subtitle {
+	margin: 0.5rem 0 0;
+	color: var(--muted);
+	font-size: 1rem;
+}
+
+.search-results__loadmore {
+	display: flex;
+	justify-content: center;
+	margin: 2.5rem 0 3rem;
 }
