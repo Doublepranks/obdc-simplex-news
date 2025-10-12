@@ -36,7 +36,15 @@ if ( 'drawer' === $context ) :
 			<?php endif; ?>
 		</div>
 		<div class="drawer-search">
-			<?php get_search_form(); ?>
+			<div class="drawer-search__form">
+			<?php
+			if ( shortcode_exists( 'wpdreams_ajaxsearchlite' ) ) {
+				echo do_shortcode( '[wpdreams_ajaxsearchlite]' );
+			} else {
+				get_search_form();
+			}
+			?>
+			</div>
 		</div>
 	</div>
 	<?php

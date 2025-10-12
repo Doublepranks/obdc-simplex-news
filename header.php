@@ -43,9 +43,16 @@
 			<h1 class="logo" itemprop="headline"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">O Brasil de Cima</a></h1>
 		<?php endif; ?>
 		
-		<div class="search">
-			<label for="q" class="screen-reader-text">Busca</label>
-			<?php get_search_form(); ?>
+		<div class="masthead-search">
+			<div class="masthead-search__form">
+				<?php
+				if ( shortcode_exists( 'wpdreams_ajaxsearchlite' ) ) {
+					echo do_shortcode( '[wpdreams_ajaxsearchlite]' );
+				} else {
+					get_search_form();
+				}
+				?>
+			</div>
 			<?php get_template_part( 'template-parts/header/auth', null, array( 'context' => 'desktop' ) ); ?>
 		</div>
 	</div>
