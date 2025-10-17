@@ -335,3 +335,95 @@ function obdc_simplex_news_get_social_icon_svg( $network ) {
 
 	return isset( $icons[ $network ] ) ? $icons[ $network ] : '';
 }
+
+/**
+ * Get default footer section labels keyed by menu location.
+ *
+ * @return array<string, string> Section defaults.
+ */
+function obdc_simplex_news_get_footer_section_defaults() {
+	$defaults = array(
+		'footer-news'          => esc_html__( 'Notícias', 'obdc-simplex-news' ),
+		'footer-brazil'        => esc_html__( 'Brasil', 'obdc-simplex-news' ),
+		'footer-site'          => esc_html__( 'Site', 'obdc-simplex-news' ),
+		'footer-opinion'       => esc_html__( 'Opinião', 'obdc-simplex-news' ),
+		'footer-sports'        => esc_html__( 'Esportes', 'obdc-simplex-news' ),
+		'footer-entertainment' => esc_html__( 'Entretenimento', 'obdc-simplex-news' ),
+		'footer-social'        => esc_html__( 'Siga o Brasil de Cima', 'obdc-simplex-news' ),
+	);
+
+	/**
+	 * Filter the default footer section labels.
+	 *
+	 * @param array<string, string> $defaults Default labels keyed by location.
+	 */
+	return apply_filters( 'obdc_simplex_news_footer_section_defaults', $defaults );
+}
+
+/**
+ * Get the theme_mod key for a footer section label.
+ *
+ * @param string $location Menu location.
+ * @return string Theme mod key.
+ */
+function obdc_simplex_news_get_footer_section_label_mod_key( $location ) {
+	$location_key = sanitize_key( str_replace( '-', '_', $location ) );
+	return "obdc_simplex_news_footer_label_{$location_key}";
+}
+
+/**
+ * Get the theme_mod key for a footer section initial state.
+ *
+ * @param string $location Menu location.
+ * @return string Theme mod key.
+ */
+function obdc_simplex_news_get_footer_section_open_mod_key( $location ) {
+	$location_key = sanitize_key( str_replace( '-', '_', $location ) );
+	return "obdc_simplex_news_footer_open_{$location_key}";
+}
+
+/**
+ * Retrieve the label for a footer section respecting Customizer overrides.
+ *
+ * @param string $location Menu location.
+ * @return string Resolved label.
+ */
+function obdc_simplex_news_get_footer_section_label( $location ) {
+	$defaults = obdc_simplex_news_get_footer_section_defaults();
+	$default  = isset( $defaults[ $location ] ) ? $defaults[ $location ] : '';
+	$mod_key  = obdc_simplex_news_get_footer_section_label_mod_key( $location );
+	$label    = get_theme_mod( $mod_key, '' );
+
+	if ( empty( $label ) ) {
+		$label = $default;
+	}
+
+	/**
+	 * Filter the footer section label after Theme Mod lookup.
+	 *
+	 * @param string $label    Resolved label.
+	 * @param string $location Menu location.
+	 * @param string $default  Default label.
+	 */
+	return apply_filters( 'obdc_simplex_news_footer_section_label', $label, $location, $default );
+}
+
+/**
+ * Determine if a footer section should open by default on mobile.
+ *
+ * @param string $location Menu location.
+ * @return bool True when the section should start expanded.
+ */
+function obdc_simplex_news_is_footer_section_open_mobile( $location ) {
+	$mod_key = obdc_simplex_news_get_footer_section_open_mod_key( $location );
+	$value   = get_theme_mod( $mod_key, false );
+	$is_open = (bool) $value;
+
+	/**
+	 * Filter whether a footer section starts open on mobile.
+	 *
+	 * @param bool   $is_open  Current resolved value.
+	 * @param string $location Menu location.
+	 */
+	return (bool) apply_filters( 'obdc_simplex_news_footer_section_open_mobile', $is_open, $location );
+}
