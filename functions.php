@@ -177,6 +177,16 @@ function obdc_simplex_news_scripts() {
                 );
         }
 
+        if ( is_single() ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-share',
+                        get_template_directory_uri() . '/js/share.js',
+                        array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
         // Add skip link focus fix
         if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
                 wp_enqueue_script( 'comment-reply' );
