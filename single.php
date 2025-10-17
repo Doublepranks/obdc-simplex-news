@@ -14,16 +14,11 @@ get_header(); ?>
 	<?php while ( have_posts() ) :
 		the_post();
 		obdc_simplex_news_increment_post_views();
-		$permalink_encoded = rawurlencode( get_permalink() );
-		$title_encoded     = rawurlencode( html_entity_decode( get_the_title(), ENT_QUOTES, get_bloginfo( 'charset' ) ) );
-		$share_links       = array(
-			'instagram' => 'https://www.instagram.com/obrasildecima/?utm_source=share&utm_medium=web&url=' . $permalink_encoded,
-			'x'         => sprintf( 'https://twitter.com/intent/tweet?url=%1$s&text=%2$s', $permalink_encoded, $title_encoded ),
-			'facebook'  => sprintf( 'https://www.facebook.com/sharer/sharer.php?u=%s', $permalink_encoded ),
-			'whatsapp'  => sprintf( 'https://api.whatsapp.com/send?text=%2$s%%20%1$s', $permalink_encoded, $title_encoded ),
-			'linkedin'  => sprintf( 'https://www.linkedin.com/sharing/share-offsite/?url=%s', $permalink_encoded ),
-			'substack'  => 'https://obrasildecima.substack.com/?utm_source=share&utm_medium=web&utm_campaign=site-share&url=' . $permalink_encoded,
-		);
+		$share_data      = obdc_simplex_news_get_share_data( get_the_ID() );
+		$share_links     = isset( $share_data['urls'] ) && is_array( $share_data['urls'] ) ? $share_data['urls'] : array();
+		$share_copy_text = isset( $share_data['share_text'] ) ? $share_data['share_text'] : '';
+		$share_title     = isset( $share_data['title'] ) ? $share_data['title'] : '';
+		$share_permalink = isset( $share_data['permalink'] ) ? $share_data['permalink'] : '';
 	?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'single-article' ); ?>>
 			<header class="single-hero">
@@ -41,31 +36,163 @@ get_header(); ?>
 				<?php endif; ?>
 
 				<div class="single-hero__meta">
-					<div class="single-hero__meta-items">
-						<span class="single-hero__meta-item"><?php esc_html_e( 'Por', 'obdc-simplex-news' ); ?> <strong><?php echo esc_html( get_the_author() ); ?></strong></span>
-						<span class="single-hero__meta-sep">&bull;</span>
-					<span class="single-hero__meta-item"><?php echo esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ); ?> <?php esc_html_e( 'atrás', 'obdc-simplex-news' ); ?></span>
-						<?php $reading_time = obdc_simplex_news_get_reading_time(); ?>
-						<?php if ( $reading_time ) : ?>
-							<span class="single-hero__meta-sep">&bull;</span>
-							<span class="single-hero__meta-item"><?php echo esc_html( $reading_time ); ?></span>
-						<?php endif; ?>
-						<?php $city = get_post_meta( get_the_ID(), 'cidade', true ); ?>
-						<?php if ( $city ) : ?>
-							<span class="single-hero__meta-sep">&bull;</span>
-							<span class="single-hero__meta-item"><?php echo esc_html( $city ); ?></span>
-						<?php endif; ?>
-					</div>
+					<?php
+					$date_format = get_option( 'date_format' );
+					$time_format = get_option( 'time_format' );
 
-					<div class="single-share-inline" aria-label="<?php esc_attr_e( 'Compartilhar este conteúdo', 'obdc-simplex-news' ); ?>">
+					if ( empty( $date_format ) ) {
+						$date_format = 'd/m/Y';
+					}
+
+					if ( empty( $time_format ) ) {
+						$time_format = 'H:i';
+					}
+
+					$meta_items       = array();
+					$author_name      = get_the_author();
+					$published_parts  = array_filter(
+						array(
+							get_the_time( $date_format ),
+							get_the_time( $time_format ),
+						)
+					);
+					$published_text   = implode( ' ', $published_parts );
+					$published_attr   = get_the_time( DATE_W3C );
+					$modified_parts   = array_filter(
+						array(
+							get_the_modified_time( $date_format ),
+							get_the_modified_time( $time_format ),
+						)
+					);
+					$modified_text    = implode( ' ', $modified_parts );
+					$modified_attr    = get_the_modified_time( DATE_W3C );
+					$has_been_updated = get_the_modified_time( 'U' ) && get_the_modified_time( 'U' ) !== get_the_time( 'U' );
+					$city             = get_post_meta( get_the_ID(), 'cidade', true );
+
+					if ( $author_name ) {
+						$meta_items[] = sprintf(
+							'%s <strong>%s</strong>',
+							esc_html__( 'Por', 'obdc-simplex-news' ),
+							esc_html( $author_name )
+						);
+					}
+
+					if ( $published_text ) {
+						$meta_items[] = sprintf(
+							'<time datetime="%s">%s</time>',
+							esc_attr( $published_attr ),
+							esc_html( $published_text )
+						);
+					}
+
+					if ( $has_been_updated && $modified_text ) {
+						$meta_items[] = sprintf(
+							'%s <time datetime="%s">%s</time>',
+							esc_html__( 'Atualizado em', 'obdc-simplex-news' ),
+							esc_attr( $modified_attr ),
+							esc_html( $modified_text )
+						);
+					}
+
+					if ( $city ) {
+						$meta_items[] = esc_html( $city );
+					}
+
+					if ( ! empty( $meta_items ) ) :
+					?>
+					<div class="single-hero__meta-items">
+						<?php foreach ( $meta_items as $index => $meta_item ) : ?>
+							<?php if ( $index > 0 ) : ?>
+								<span class="single-hero__meta-sep">&bull;</span>
+							<?php endif; ?>
+							<span class="single-hero__meta-item"><?php echo wp_kses_post( $meta_item ); ?></span>
+						<?php endforeach; ?>
+					</div>
+					<?php endif; ?>
+
+				<div class="single-share-inline" aria-label="<?php esc_attr_e( 'Compartilhar este conteúdo', 'obdc-simplex-news' ); ?>">
+						<?php
+						$share_items = array(
+							'share'     => array(
+								'label' => __( 'Compartilhar', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'share' ),
+								'class' => 'single-share-inline__button single-share-inline__button--native-share',
+							),
+							'x'         => array(
+								'label' => __( 'Compartilhar no X', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'x' ),
+							),
+							'instagram' => array(
+								'label' => __( 'Copiar link para usar no Instagram (desktop) ou abrir o aplicativo (mobile)', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'instagram' ),
+								'class' => 'single-share-inline__button single-share-inline__button--instagram',
+							),
+							'facebook'  => array(
+								'label' => __( 'Compartilhar no Facebook', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'facebook' ),
+							),
+							'whatsapp'  => array(
+								'label' => __( 'Compartilhar no WhatsApp', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'whatsapp' ),
+							),
+							'linkedin'  => array(
+								'label' => __( 'Compartilhar no LinkedIn', 'obdc-simplex-news' ),
+								'icon'  => obdc_simplex_news_get_social_icon_svg( 'linkedin' ),
+							),
+						);
+						?>
 						<ul class="single-share-inline__list" role="list">
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['x'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Compartilhar no X', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5h3.3l5 6.4 4.4-6.4H21l-6.4 9.3 5.5 7.2h-3.3l-4.6-6-4.1 6H3l6.7-9.6z"/></svg></a></li>
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['instagram'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Abrir Instagram', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm6.25-.88a1.12 1.12 0 1 1-2.24 0 1.12 1.12 0 0 1 2.24 0z"/></svg></a></li>
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['facebook'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Compartilhar no Facebook', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 22H9v-8H6v-4h3V6.7C9 4 10.6 2 13.9 2H18v4h-2.7c-1 0-1.3.4-1.3 1.2V10h4l-.6 4h-3.4z"/></svg></a></li>
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['whatsapp'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Compartilhar no WhatsApp', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 2.118.553 4.154 1.602 5.957L0 24l6.267-1.643A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0Zm5.746 17.266c-.246.7-1.454 1.29-2.016 1.377-.516.08-1.187.113-1.918-.12-.441-.14-1.004-.327-1.733-.64-3.056-1.306-5.05-4.333-5.2-4.536-.153-.204-1.244-1.652-1.244-3.155 0-1.504.79-2.24 1.07-2.55.246-.27.54-.34.72-.34.18 0 .36.003.517.01.165.007.389-.062.61.467.246.59.84 2.045.915 2.19.073.145.12.316.02.51-.096.203-.146.316-.292.486-.146.17-.31.38-.442.51-.146.146-.298.305-.128.595.17.29.755 1.24 1.622 2.005 1.115.996 2.056 1.304 2.346 1.45.29.145.456.122.62-.073.165-.195.71-.827.902-1.112.19-.284.38-.238.63-.145.246.086 1.558.735 1.825.868.27.133.45.2.52.31.073.11.073.7-.173 1.403Z"/></svg></a></li>
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['linkedin'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Compartilhar no LinkedIn', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0zM0 8.82h4.95V24H0zm7.98 0H12v2.1h.05c.6-1.1 2-2.2 4.1-2.2 3.9 0 4.9 2.5 4.9 5.8V24h-4.95v-5.6c0-1.3 0-3-1.9-3s-2.2 1.4-2.2 2.9V24H7.98z"/></svg></a></li>
-							<li><a class="single-share-inline__button" rel="noopener noreferrer" target="_blank" href="<?php echo esc_url( $share_links['substack'] ); ?>"><span class="sr-only"><?php esc_html_e( 'Abrir Substack', 'obdc-simplex-news' ); ?></span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v3H3V4zm0 5h18v12l-9-3-9 3V9z"/></svg></a></li>
+						<?php foreach ( $share_items as $network => $item ) : ?>
+							<?php
+							$url = isset( $share_links[ $network ] ) ? $share_links[ $network ] : '';
+							if ( empty( $url ) && ! in_array( $network, array( 'instagram', 'share' ), true ) ) {
+								continue;
+							}
+
+							$button_classes = 'single-share-inline__button';
+							if ( ! empty( $item['class'] ) ) {
+								$button_classes = $item['class'];
+							}
+
+							$icon  = isset( $item['icon'] ) ? $item['icon'] : '';
+							$label = isset( $item['label'] ) ? $item['label'] : '';
+
+							$href = '#';
+							if ( ! empty( $url ) ) {
+								$href = ( 'instagram' === $network ) ? esc_attr( $url ) : esc_url( $url );
+							}
+
+							$extra_attributes = '';
+							if ( 'share' === $network ) {
+								if ( ! empty( $share_title ) ) {
+									$extra_attributes .= ' data-share-title="' . esc_attr( $share_title ) . '"';
+								}
+								if ( ! empty( $share_copy_text ) ) {
+									$extra_attributes .= ' data-share-text="' . esc_attr( $share_copy_text ) . '"';
+								}
+								if ( ! empty( $share_permalink ) ) {
+									$extra_attributes .= ' data-share-url="' . esc_attr( $share_permalink ) . '"';
+								}
+								$extra_attributes .= ' data-share-success="' . esc_attr__( 'Link pronto para compartilhar.', 'obdc-simplex-news' ) . '"';
+								$extra_attributes .= ' data-share-error="' . esc_attr__( 'Não foi possível compartilhar automaticamente. Use o link copiado.', 'obdc-simplex-news' ) . '"';
+							}
+							if ( 'instagram' === $network ) {
+								if ( ! empty( $share_copy_text ) ) {
+									$extra_attributes .= ' data-share-text="' . esc_attr( $share_copy_text ) . '"';
+								}
+								$extra_attributes .= ' data-copy-success="' . esc_attr__( 'Link copiado para a área de transferência.', 'obdc-simplex-news' ) . '"';
+								$extra_attributes .= ' data-copy-error="' . esc_attr__( 'Não foi possível copiar automaticamente. Use o link manualmente.', 'obdc-simplex-news' ) . '"';
+							}
+							?>
+							<li>
+								<a class="<?php echo esc_attr( $button_classes ); ?>" rel="noopener noreferrer" target="_blank" href="<?php echo $href; ?>" aria-label="<?php echo esc_attr( $label ); ?>"<?php echo $extra_attributes; ?>>
+									<span class="sr-only"><?php echo esc_html( $label ); ?></span>
+									<?php echo $icon; ?>
+								</a>
+							</li>
+						<?php endforeach; ?>
 						</ul>
+						<div class="single-share-inline__feedback sr-only" role="status" aria-live="polite"></div>
 					</div>
 				</div>
 
