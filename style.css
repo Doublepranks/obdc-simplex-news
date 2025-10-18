@@ -66,7 +66,6 @@ img {
 	display: block;
 	max-width: 100%;
 	height: auto;
-	border-radius: 10px;
 }
 
 .wrap {
@@ -863,7 +862,7 @@ main {
 .single-hero {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 10px;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	padding-top: 0px;
@@ -1624,7 +1623,7 @@ main {
 }
 
 .footer-branding img {
-	max-width: 160px;
+	max-width: 250px;
 	height: auto;
 	display: block;
 	margin-bottom: 16px;
@@ -1669,37 +1668,50 @@ main {
 	justify-content: space-between;
 	gap: 12px;
 	width: 100%;
-	padding: 0;
+	padding: 14px 0;
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
 	letter-spacing: 0.01em;
 	text-align: left;
 	cursor: default;
+	transition: color 0.2s ease;
 }
 
 .footer-section-toggle--collapsible {
 	cursor: pointer;
 }
-.footer-section-toggle::after {
+
+.footer-section-toggle .footer-section-indicator {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	position: relative;
+}
+
+.footer-section-toggle .footer-section-indicator::before,
+.footer-section-toggle .footer-section-indicator::after {
 	content: "";
-	flex-shrink: 0;
-	width: 12px;
-	height: 12px;
-	border-right: 2px solid #9ca3af;
-	border-bottom: 2px solid #9ca3af;
-	transform: rotate(45deg);
-	transform-origin: center;
-	transition: transform 0.2s ease, border-color 0.2s ease;
-	display: none;
+	position: absolute;
+	background: currentColor;
+	border-radius: 999px;
+	transition: transform 0.2s ease;
 }
 
-.footer-section-toggle--collapsible::after {
-	display: inline-block;
+.footer-section-toggle .footer-section-indicator::before {
+	width: 16px;
+	height: 2px;
 }
 
-.footer-section-toggle--collapsible[aria-expanded="true"]::after {
-	transform: rotate(-135deg);
+.footer-section-toggle .footer-section-indicator::after {
+	width: 2px;
+	height: 16px;
+}
+
+.footer-section-toggle--collapsible[aria-expanded="true"] .footer-section-indicator::after {
+	transform: scaleY(0);
 }
 
 .footer-section-toggle--collapsible:hover,
@@ -1824,7 +1836,7 @@ main {
 .footer-copy {
 	margin: 0;
 	color: #e5e7eb;
-	font-size: 0.95rem;
+	font-size: 0.90rem;
 }
 
 .footer-meta {
@@ -1958,7 +1970,8 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.footer-section-toggle::after {
+	.footer-section-toggle .footer-section-indicator::before,
+	.footer-section-toggle .footer-section-indicator::after {
 		transition: none;
 	}
 }
