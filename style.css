@@ -1770,6 +1770,8 @@ main {
 	color: #d1d5db;
 	font-size: 0.95rem;
 	transition: color 0.2s ease, transform 0.2s ease;
+	justify-content: flex-start;
+	width: 100%;
 }
 
 .footer-social-link:hover,
@@ -1913,6 +1915,10 @@ main {
 	.footer-column {
 		align-items: center;
 	}
+	.footer-column-social {
+		align-items: stretch;
+		text-align: left;
+	}
 	.footer-menu {
 		gap: 8px;
 		text-align: center;
@@ -1930,11 +1936,16 @@ main {
 		grid-auto-rows: 1fr;
 		justify-items: stretch;
 	}
+	.footer-social-item {
+		width: 100%;
+	}
 	.footer-social-link {
-		justify-content: center;
-		align-items: baseline;
+		justify-content: flex-start;
+		align-items: center;
 		height: 100%;
-		gap: 10px;
+		gap: 12px;
+		padding: 12px 8px;
+		text-align: left;
 	}
 	.footer-bottom {
 		align-items: center;
