@@ -435,7 +435,7 @@ function obdc_simplex_news_is_footer_section_open_mobile( $location ) {
  */
 function obdc_simplex_news_get_available_author_roles() {
 	$roles = array(
-		'subscriber' => __( 'Assinante', 'obdc-simplex-news' ),
+		// TODO: Allow subscribers when checkbox control is fixed (beta).
 		'contributor'=> __( 'Colaborador', 'obdc-simplex-news' ),
 		'author'     => __( 'Autor', 'obdc-simplex-news' ),
 		'editor'     => __( 'Editor', 'obdc-simplex-news' ),

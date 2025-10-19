@@ -5,99 +5,6 @@
  * @package ObDC-simplex-news
  */
 
-if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'OBDC_Simplex_News_Checkbox_Multiple_Control' ) ) {
-	/**
-	 * Customizer control that renders multiple checkboxes.
-	 */
-	class OBDC_Simplex_News_Checkbox_Multiple_Control extends WP_Customize_Control {
-		/**
-		 * Control type.
-		 *
-		 * @var string
-		 */
-		public $type = 'checkbox-multiple';
-
-		/**
-		 * Render control content.
-		 */
-		public function render_content() {
-			if ( empty( $this->choices ) ) {
-				return;
-			}
-
-			$value = (array) $this->value();
-
-			if ( ! empty( $this->label ) ) {
-				echo '<span class="customize-control-title">' . esc_html( $this->label ) . '</span>';
-			}
-
-			if ( ! empty( $this->description ) ) {
-				echo '<span class="description customize-control-description">' . wp_kses_post( $this->description ) . '</span>';
-			}
-
-			foreach ( $this->choices as $choice_value => $choice_label ) {
-				$checkbox_id = $this->id . '_' . $choice_value;
-				?>
-				<label for="<?php echo esc_attr( $checkbox_id ); ?>">
-					<input
-						type="checkbox"
-						id="<?php echo esc_attr( $checkbox_id ); ?>"
-						value="<?php echo esc_attr( $choice_value ); ?>"
-						<?php checked( in_array( $choice_value, $value, true ) ); ?>
-						<?php $this->link(); ?>
-					/>
-					<span><?php echo esc_html( $choice_label ); ?></span>
-				</label><br/>
-				<?php
-			}
-		}
-	}
-}
-
-if ( class_exists( 'WP_Customize_Control' ) && ! class_exists( 'OBDC_Simplex_News_Select_Multiple_Control' ) ) {
-	/**
-	 * Customizer control that renders a multiple select.
-	 */
-	class OBDC_Simplex_News_Select_Multiple_Control extends WP_Customize_Control {
-		/**
-		 * Control type.
-		 *
-		 * @var string
-		 */
-		public $type = 'select-multiple';
-
-		/**
-		 * Render control content.
-		 */
-		public function render_content() {
-			if ( empty( $this->choices ) ) {
-				return;
-			}
-
-			if ( ! empty( $this->label ) ) {
-				echo '<span class="customize-control-title">' . esc_html( $this->label ) . '</span>';
-			}
-
-			if ( ! empty( $this->description ) ) {
-				echo '<span class="description customize-control-description">' . wp_kses_post( $this->description ) . '</span>';
-			}
-
-			$value = (array) $this->value();
-			$size  = isset( $this->input_attrs['size'] ) ? absint( $this->input_attrs['size'] ) : min( 12, count( $this->choices ) );
-			$size  = max( 5, $size );
-			?>
-			<select multiple="multiple" size="<?php echo esc_attr( $size ); ?>" <?php $this->link(); ?> style="width:100%;max-width:100%;">
-				<?php foreach ( $this->choices as $choice_value => $choice_label ) : ?>
-					<option value="<?php echo esc_attr( $choice_value ); ?>" <?php selected( in_array( $choice_value, $value, true ) ); ?>>
-						<?php echo esc_html( $choice_label ); ?>
-					</option>
-				<?php endforeach; ?>
-			</select>
-			<?php
-		}
-	}
-}
-
 /**
  * Register theme customization options.
  *
@@ -281,6 +188,7 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	);
 
 	$available_roles = obdc_simplex_news_get_available_author_roles();
+	$role_choices    = array( '__fallback__' => __( 'Fallback automático (todos os papéis permitidos)', 'obdc-simplex-news' ) ) + $available_roles;
 
 	$wp_customize->add_setting(
 		'obdc_simplex_news_featured_author_roles',
@@ -293,14 +201,20 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	);
 
 	$wp_customize->add_control(
-		new OBDC_Simplex_News_Checkbox_Multiple_Control(
+		new WP_Customize_Control(
 			$wp_customize,
 			'obdc_simplex_news_featured_author_roles',
 			array(
 				'label'       => __( 'Papéis elegíveis', 'obdc-simplex-news' ),
 				'section'     => 'obdc_simplex_news_featured_authors_section',
-				'choices'     => $available_roles,
-				'description' => __( 'Selecione quais tipos de usuários podem aparecer no mural.', 'obdc-simplex-news' ),
+				'type'        => 'select',
+				'choices'     => $role_choices,
+				'description' => __( 'Selecione quais tipos de usuários podem aparecer no mural (escolha "Fallback automático" para usar todos).', 'obdc-simplex-news' ),
+				'input_attrs' => array(
+					'multiple' => 'multiple',
+					'size'     => min( 8, count( $role_choices ) ),
+					'style'    => 'height:auto;',
+				),
 			)
 		)
 	);
@@ -328,7 +242,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 		)
 	);
 
-	$author_choices = array();
+	$author_choices = array(
+		'__fallback__' => __( 'Usar fallback automático (autores mais produtivos)', 'obdc-simplex-news' ),
+	);
 
 	if ( ! empty( $user_query->results ) ) {
 		foreach ( $user_query->results as $user ) {
@@ -337,16 +253,19 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	}
 
 	$wp_customize->add_control(
-		new OBDC_Simplex_News_Select_Multiple_Control(
+		new WP_Customize_Control(
 			$wp_customize,
 			'obdc_simplex_news_featured_authors',
 			array(
 				'label'       => __( 'Selecionar autores manualmente', 'obdc-simplex-news' ),
 				'section'     => 'obdc_simplex_news_featured_authors_section',
+				'type'        => 'select',
 				'choices'     => $author_choices,
-				'description' => __( 'Autores marcados aparecem primeiro no mural. Use Ctrl/Cmd ou Shift para selecionar múltiplos. Se não marcar ninguém, o mural usará o fallback automático pelo período abaixo.', 'obdc-simplex-news' ),
+				'description' => __( 'Autores selecionados aparecem primeiro no mural. Use Ctrl/Cmd ou Shift para marcar vários. Se não escolher ninguém, o sistema usará o fallback automático.', 'obdc-simplex-news' ),
 				'input_attrs' => array(
-					'size' => min( 16, max( 6, count( $author_choices ) ) ),
+					'multiple' => 'multiple',
+					'size'     => min( 18, max( 8, count( $author_choices ) ) ),
+					'style'    => 'height:auto;',
 				),
 			)
 		)
@@ -427,9 +346,15 @@ function obdc_simplex_news_sanitize_roles( $roles ) {
 	}
 
 	$roles = array_map( 'sanitize_key', $roles );
-	$roles = array_intersect( $roles, $available );
+	$use_fallback = in_array( '__fallback__', $roles, true );
+	$roles        = array_diff( $roles, array( '__fallback__' ) );
+	$roles        = array_intersect( $roles, $available );
 
-	return ! empty( $roles ) ? array_values( $roles ) : $available;
+	if ( $use_fallback ) {
+		return array();
+	}
+
+	return array_values( $roles );
 }
 
 /**
@@ -451,8 +376,15 @@ function obdc_simplex_news_sanitize_author_ids( $ids ) {
 		return array();
 	}
 
+	$use_fallback = in_array( '__fallback__', $ids, true );
+	$ids          = array_diff( $ids, array( '__fallback__' ) );
+
 	$ids = array_map( 'absint', $ids );
 	$ids = array_filter( $ids );
+
+	if ( $use_fallback ) {
+		return array();
+	}
 
 	return array_values( array_unique( $ids ) );
 }
@@ -487,4 +419,3 @@ function obdc_simplex_news_sanitize_live_text( $input ) {
 
 // Note: The function obdc_simplex_news_customize_preview_js() was moved to inc/customizer.php
 // to avoid conflicts and follow standard WordPress practices for Customizer scripts.
-
