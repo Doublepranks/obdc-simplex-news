@@ -124,5 +124,7 @@ $auto_load_limit  = max( 0, absint( $auto_load_limit ) );
 	</div><!-- .wrap -->
 </main><!-- #main -->
 
+<?php get_template_part( 'template-parts/front-page/authors-carousel' ); ?>
+
 <?php
 get_footer();

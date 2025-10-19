@@ -427,3 +427,296 @@ function obdc_simplex_news_is_footer_section_open_mobile( $location ) {
 	 */
 	return (bool) apply_filters( 'obdc_simplex_news_footer_section_open_mobile', $is_open, $location );
 }
+
+/**
+ * Get a map of available author roles that can populate the mural.
+ *
+ * @return array<string, string> Role key => human-readable label.
+ */
+function obdc_simplex_news_get_available_author_roles() {
+	$roles = array(
+		'subscriber' => __( 'Assinante', 'obdc-simplex-news' ),
+		'contributor'=> __( 'Colaborador', 'obdc-simplex-news' ),
+		'author'     => __( 'Autor', 'obdc-simplex-news' ),
+		'editor'     => __( 'Editor', 'obdc-simplex-news' ),
+		'administrator' => __( 'Administrador', 'obdc-simplex-news' ),
+	);
+
+	/**
+	 * Allow filtering of the available roles for the authors mural.
+	 *
+	 * @param array<string, string> $roles Role labels keyed by slug.
+	 */
+	return apply_filters( 'obdc_simplex_news_available_author_roles', $roles );
+}
+
+/**
+ * Retrieve the theme setting with author IDs selected in the Customizer.
+ *
+ * @return int[] Ordered list of user IDs.
+ */
+function obdc_simplex_news_get_featured_author_ids_setting() {
+	$ids = get_theme_mod( 'obdc_simplex_news_featured_authors', array() );
+
+	if ( is_string( $ids ) ) {
+		$ids = array_map( 'trim', explode( ',', $ids ) );
+	}
+
+	if ( empty( $ids ) ) {
+		return array();
+	}
+
+	return array_values(
+		array_unique(
+			array_map( 'absint', array_filter( (array) $ids ) )
+		)
+	);
+}
+
+/**
+ * Retrieve the list of roles enabled for the authors mural.
+ *
+ * @return string[] Role slugs.
+ */
+function obdc_simplex_news_get_featured_author_roles_setting() {
+	$default_roles = array_keys( obdc_simplex_news_get_available_author_roles() );
+	$roles         = get_theme_mod( 'obdc_simplex_news_featured_author_roles', $default_roles );
+
+	if ( is_string( $roles ) ) {
+		$roles = array_map( 'trim', explode( ',', $roles ) );
+	}
+
+	if ( empty( $roles ) || ! is_array( $roles ) ) {
+		return $default_roles;
+	}
+
+	$roles = array_map( 'sanitize_key', $roles );
+	$roles = array_values( array_intersect( $roles, $default_roles ) );
+
+	return ! empty( $roles ) ? $roles : $default_roles;
+}
+
+/**
+ * Retrieve the selected timeframe for fallback author ranking.
+ *
+ * @return int Number of days (7, 30, 90).
+ */
+function obdc_simplex_news_get_featured_author_period_setting() {
+	$period = (int) get_theme_mod( 'obdc_simplex_news_featured_authors_period', 30 );
+
+	if ( ! in_array( $period, array( 7, 30, 90 ), true ) ) {
+		$period = 30;
+	}
+
+	return $period;
+}
+
+/**
+ * Get a human-readable label for the first allowed role assigned to a user.
+ *
+ * @param WP_User $user          User object.
+ * @param array   $roles_allowed Allowed role slugs.
+ * @return string Human label or empty string.
+ */
+function obdc_simplex_news_get_user_role_label( WP_User $user, $roles_allowed ) {
+	$available = obdc_simplex_news_get_available_author_roles();
+
+	foreach ( (array) $user->roles as $role ) {
+		if ( in_array( $role, $roles_allowed, true ) && isset( $available[ $role ] ) ) {
+			return $available[ $role ];
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Get the avatar URL for a given user, preferring custom meta when available.
+ *
+ * @param int $user_id User ID.
+ * @return string Avatar URL.
+ */
+function obdc_simplex_news_get_user_avatar_url( $user_id ) {
+	$custom_avatar = get_user_meta( $user_id, 'avatar', true );
+
+	if ( is_string( $custom_avatar ) && ! empty( $custom_avatar ) ) {
+		return esc_url_raw( $custom_avatar );
+	}
+
+	return get_avatar_url( $user_id, array( 'size' => 256 ) );
+}
+
+/**
+ * Prepare the data payload for a single author card.
+ *
+ * @param WP_User $user          User object.
+ * @param array   $roles_allowed Allowed role slugs.
+ * @return array<string, mixed> Structured data for rendering.
+ */
+function obdc_simplex_news_prepare_author_card_data( WP_User $user, $roles_allowed ) {
+	$role_label = obdc_simplex_news_get_user_role_label( $user, $roles_allowed );
+
+	return array(
+		'id'       => (int) $user->ID,
+		'name'     => $user->display_name,
+		'role'     => $role_label,
+		'bio'      => get_the_author_meta( 'description', $user->ID ),
+		'avatar'   => obdc_simplex_news_get_user_avatar_url( $user->ID ),
+		'permalink'=> get_author_posts_url( $user->ID ),
+	);
+}
+
+/**
+ * Retrieve the list of authors to highlight in the front-page mural.
+ *
+ * @param int $limit Maximum number of authors.
+ * @return array<int, array<string, mixed>> Structured author data.
+ */
+function obdc_simplex_news_get_featured_authors( $limit = 12 ) {
+	$limit = max( 1, absint( $limit ) );
+	$roles_allowed = obdc_simplex_news_get_featured_author_roles_setting();
+	$selected_ids  = obdc_simplex_news_get_featured_author_ids_setting();
+	$period_days   = obdc_simplex_news_get_featured_author_period_setting();
+
+	$context_hash = md5(
+		wp_json_encode(
+			array(
+				'limit'    => $limit,
+				'roles'    => $roles_allowed,
+				'selected' => $selected_ids,
+				'period'   => $period_days,
+			)
+		)
+	);
+
+	$cache_key = sprintf( 'obdc_featured_authors_%s', $context_hash );
+	$cached    = wp_cache_get( $cache_key, 'obdc_simplex_news' );
+
+	if ( false !== $cached ) {
+		return $cached;
+	}
+
+	$authors      = array();
+	$used_ids     = array();
+
+	if ( ! empty( $selected_ids ) ) {
+		$user_query = get_users(
+			array(
+				'include' => $selected_ids,
+				'orderby' => 'include',
+				'number'  => $limit,
+			)
+		);
+
+		foreach ( $user_query as $user ) {
+			if ( empty( array_intersect( $roles_allowed, (array) $user->roles ) ) ) {
+				continue;
+			}
+
+			if ( in_array( $user->ID, $used_ids, true ) ) {
+				continue;
+			}
+
+			$authors[] = obdc_simplex_news_prepare_author_card_data( $user, $roles_allowed );
+			$used_ids[] = (int) $user->ID;
+			if ( count( $authors ) >= $limit ) {
+				break;
+			}
+		}
+	}
+
+	// Fallback: authors ordered by recent activity.
+	if ( count( $authors ) < $limit ) {
+		$post_query  = new WP_Query(
+			array(
+				'post_type'      => 'post',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'date_query'     => array(
+					array(
+						'after' => sprintf( '%d days ago', $period_days ),
+					),
+				),
+				'no_found_rows'  => true,
+			)
+		);
+
+		$author_counts = array();
+
+		if ( $post_query->have_posts() ) {
+			foreach ( $post_query->posts as $post_id ) {
+				$author_id = (int) get_post_field( 'post_author', $post_id );
+				if ( ! $author_id ) {
+					continue;
+				}
+				if ( ! isset( $author_counts[ $author_id ] ) ) {
+					$author_counts[ $author_id ] = 0;
+				}
+				$author_counts[ $author_id ]++;
+			}
+		}
+
+		wp_reset_postdata();
+
+		if ( ! empty( $author_counts ) ) {
+			arsort( $author_counts );
+			$ordered_ids = array_keys( $author_counts );
+		} else {
+			// Fallback to users with allowed roles when no recent posts exist.
+			$ordered_ids = get_users(
+				array(
+					'role__in' => $roles_allowed,
+					'fields'   => 'ID',
+					'orderby'  => 'display_name',
+					'order'    => 'ASC',
+				)
+			);
+		}
+
+		foreach ( $ordered_ids as $user_id ) {
+			$user = get_user_by( 'id', $user_id );
+			if ( ! $user instanceof WP_User ) {
+				continue;
+			}
+
+			if ( empty( array_intersect( $roles_allowed, (array) $user->roles ) ) ) {
+				continue;
+			}
+
+			if ( in_array( $user->ID, $used_ids, true ) ) {
+				continue;
+			}
+
+			$authors[] = obdc_simplex_news_prepare_author_card_data( $user, $roles_allowed );
+			$used_ids[] = (int) $user->ID;
+			if ( count( $authors ) >= $limit ) {
+				break;
+			}
+		}
+	}
+
+	$authors = array_slice( $authors, 0, $limit );
+
+	/**
+	 * Filter the featured authors list before caching.
+	 *
+	 * @param array $authors Prepared author data.
+	 * @param int   $limit   Requested limit.
+	 */
+	$authors = apply_filters( 'obdc_simplex_news_featured_authors', $authors, $limit );
+
+	wp_cache_set( $cache_key, $authors, 'obdc_simplex_news', HOUR_IN_SECONDS );
+
+	return $authors;
+}
+
+/**
+ * Whether there are featured authors for the mural.
+ *
+ * @return bool True when the authors carousel should render.
+ */
+function obdc_simplex_news_has_featured_authors() {
+	$authors = obdc_simplex_news_get_featured_authors( 1 );
+	return ! empty( $authors );
+}
