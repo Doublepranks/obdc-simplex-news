@@ -187,6 +187,16 @@ function obdc_simplex_news_scripts() {
                 );
         }
 
+        if ( is_front_page() && function_exists( 'obdc_simplex_news_has_featured_authors' ) && obdc_simplex_news_has_featured_authors() ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-authors-carousel',
+                        get_template_directory_uri() . '/js/authors-carousel.js',
+                        array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
         wp_enqueue_script(
                 'obdc-simplex-news-footer-accordion',
                 get_template_directory_uri() . '/js/footer-accordion.js',

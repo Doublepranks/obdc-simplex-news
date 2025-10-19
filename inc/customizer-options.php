@@ -1,6 +1,6 @@
 <?php
 /**
- * ObDC-simplex-news Customizer Options
+ * ObDC-simplex-news Customizer Options.
  *
  * @package ObDC-simplex-news
  */
@@ -104,7 +104,7 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 		)
 	);
 
-	// Footer panel.
+	// Footer panel (pre-existing).
 	$wp_customize->add_panel(
 		'obdc_simplex_news_footer_panel',
 		array(
@@ -168,6 +168,134 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 			)
 		);
 	}
+
+	// Authors panel.
+	$wp_customize->add_panel(
+		'obdc_simplex_news_authors_panel',
+		array(
+			'title'       => __( 'Autores', 'obdc-simplex-news' ),
+			'description' => __( 'Configure os autores em destaque na página inicial.', 'obdc-simplex-news' ),
+			'priority'    => 120,
+		)
+	);
+
+	$wp_customize->add_section(
+		'obdc_simplex_news_featured_authors_section',
+		array(
+			'title' => __( 'Autores em destaque', 'obdc-simplex-news' ),
+			'panel' => 'obdc_simplex_news_authors_panel',
+		)
+	);
+
+	$available_roles = obdc_simplex_news_get_available_author_roles();
+	$role_choices    = array( '__fallback__' => __( 'Fallback automático (todos os papéis permitidos)', 'obdc-simplex-news' ) ) + $available_roles;
+
+	$wp_customize->add_setting(
+		'obdc_simplex_news_featured_author_roles',
+		array(
+			'default'           => array_keys( $available_roles ),
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_roles',
+		)
+	);
+
+	$wp_customize->add_control(
+		new WP_Customize_Control(
+			$wp_customize,
+			'obdc_simplex_news_featured_author_roles',
+			array(
+				'label'       => __( 'Papéis elegíveis', 'obdc-simplex-news' ),
+				'section'     => 'obdc_simplex_news_featured_authors_section',
+				'type'        => 'select',
+				'choices'     => $role_choices,
+				'description' => __( 'Selecione quais tipos de usuários podem aparecer no mural (escolha "Fallback automático" para usar todos).', 'obdc-simplex-news' ),
+				'input_attrs' => array(
+					'multiple' => 'multiple',
+					'size'     => min( 8, count( $role_choices ) ),
+					'style'    => 'height:auto;',
+				),
+			)
+		)
+	);
+
+	// Manual authors.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_featured_authors',
+		array(
+			'default'           => array(),
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_author_ids',
+		)
+	);
+
+	$roles_for_query = obdc_simplex_news_get_featured_author_roles_setting();
+
+	$user_query = new WP_User_Query(
+		array(
+			'role__in' => $roles_for_query,
+			'orderby'  => 'display_name',
+			'order'    => 'ASC',
+			'fields'   => array( 'ID', 'display_name' ),
+			'number'   => 300,
+		)
+	);
+
+	$author_choices = array(
+		'__fallback__' => __( 'Usar fallback automático (autores mais produtivos)', 'obdc-simplex-news' ),
+	);
+
+	if ( ! empty( $user_query->results ) ) {
+		foreach ( $user_query->results as $user ) {
+			$author_choices[ $user->ID ] = $user->display_name;
+		}
+	}
+
+	$wp_customize->add_control(
+		new WP_Customize_Control(
+			$wp_customize,
+			'obdc_simplex_news_featured_authors',
+			array(
+				'label'       => __( 'Selecionar autores manualmente', 'obdc-simplex-news' ),
+				'section'     => 'obdc_simplex_news_featured_authors_section',
+				'type'        => 'select',
+				'choices'     => $author_choices,
+				'description' => __( 'Autores selecionados aparecem primeiro no mural. Use Ctrl/Cmd ou Shift para marcar vários. Se não escolher ninguém, o sistema usará o fallback automático.', 'obdc-simplex-news' ),
+				'input_attrs' => array(
+					'multiple' => 'multiple',
+					'size'     => min( 18, max( 8, count( $author_choices ) ) ),
+					'style'    => 'height:auto;',
+				),
+			)
+		)
+	);
+
+	// Fallback period.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_featured_authors_period',
+		array(
+			'default'           => 30,
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_period',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_featured_authors_period',
+		array(
+			'label'       => __( 'Período para o fallback automático', 'obdc-simplex-news' ),
+			'section'     => 'obdc_simplex_news_featured_authors_section',
+			'type'        => 'select',
+			'choices'     => array(
+				7  => __( 'Últimos 7 dias', 'obdc-simplex-news' ),
+				30 => __( 'Últimos 30 dias', 'obdc-simplex-news' ),
+				90 => __( 'Últimos 90 dias', 'obdc-simplex-news' ),
+			),
+			'description' => __( 'Quando não houver autores selecionados, o mural exibirá os usuários mais produtivos dentro deste intervalo.', 'obdc-simplex-news' ),
+		)
+	);
 }
 add_action( 'customize_register', 'obdc_simplex_news_customize_register' );
 
@@ -198,6 +326,83 @@ function obdc_simplex_news_sanitize_select( $input ) {
  */
 function obdc_simplex_news_sanitize_checkbox( $value ) {
 	return (bool) $value;
+}
+
+/**
+ * Sanitize a list of role slugs.
+ *
+ * @param mixed $roles Raw value from the Customizer.
+ * @return array Sanitized role slugs.
+ */
+function obdc_simplex_news_sanitize_roles( $roles ) {
+	$available = array_keys( obdc_simplex_news_get_available_author_roles() );
+
+	if ( is_string( $roles ) ) {
+		$roles = array_map( 'trim', explode( ',', $roles ) );
+	}
+
+	if ( ! is_array( $roles ) ) {
+		return $available;
+	}
+
+	$roles = array_map( 'sanitize_key', $roles );
+	$use_fallback = in_array( '__fallback__', $roles, true );
+	$roles        = array_diff( $roles, array( '__fallback__' ) );
+	$roles        = array_intersect( $roles, $available );
+
+	if ( $use_fallback ) {
+		return array();
+	}
+
+	return array_values( $roles );
+}
+
+/**
+ * Sanitize a list of author IDs.
+ *
+ * @param mixed $ids Raw value from the Customizer.
+ * @return array Sanitized IDs.
+ */
+function obdc_simplex_news_sanitize_author_ids( $ids ) {
+	if ( empty( $ids ) ) {
+		return array();
+	}
+
+	if ( is_string( $ids ) ) {
+		$ids = array_map( 'trim', explode( ',', $ids ) );
+	}
+
+	if ( ! is_array( $ids ) ) {
+		return array();
+	}
+
+	$use_fallback = in_array( '__fallback__', $ids, true );
+	$ids          = array_diff( $ids, array( '__fallback__' ) );
+
+	$ids = array_map( 'absint', $ids );
+	$ids = array_filter( $ids );
+
+	if ( $use_fallback ) {
+		return array();
+	}
+
+	return array_values( array_unique( $ids ) );
+}
+
+/**
+ * Sanitize the fallback period value.
+ *
+ * @param mixed $value Raw period value.
+ * @return int Valid number of days (7, 30 or 90).
+ */
+function obdc_simplex_news_sanitize_period( $value ) {
+	$value = absint( $value );
+
+	if ( ! in_array( $value, array( 7, 30, 90 ), true ) ) {
+		$value = 30;
+	}
+
+	return $value;
 }
 
 /**
