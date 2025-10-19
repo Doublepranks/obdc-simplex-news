@@ -1626,6 +1626,7 @@ main {
 	max-width: 250px;
 	height: auto;
 	display: block;
+	padding-top: 11px;
 	margin-bottom: 16px;
 }
 
@@ -2048,8 +2049,8 @@ main {
 /* Authors carousel */
 .site-authors {
 	padding: 72px 0 88px;
-	background: #0b0d0f;
-	color: #f3f4f6;
+	background: var(--bg);
+	/* color: #f3f4f6; */
 }
 
 .site-authors__header {
@@ -2064,9 +2065,9 @@ main {
 .site-authors__title {
 	margin: 0;
 	font-family: "Merriweather", Georgia, serif;
-	font-size: 2rem;
+	font-size: 1.25rem;
 	font-weight: 700;
-	color: #f9fafb;
+	color: var(--brand);
 }
 
 .site-authors__wrapper {
@@ -2083,8 +2084,8 @@ main {
 
 .site-author-card {
 	width: 280px;
-	background: #111827;
-	border: 1px solid #1f2937;
+	background: #fff;
+	border: 1px solid var(--border);
 	border-radius: 16px;
 	padding: 24px;
 	display: flex;
@@ -2098,7 +2099,7 @@ main {
 .site-author-card:focus-within {
 	transform: translateY(-4px);
 	box-shadow: 0 22px 36px rgba(15, 23, 42, 0.35);
-	border-color: #334155;
+	border-color: var(--border);
 }
 
 .site-author-card__link {
@@ -2121,32 +2122,34 @@ main {
 
 .site-author-card__avatar {
 	display: flex;
-	justify-content: flex-start;
+	justify-content: space-evenly;
 }
 
 .site-author-card__content {
+	text-align: center;
 	display: grid;
-	gap: 10px;
+	gap: 8px;
+	align-items: center;
 }
 
 .site-author-card__name {
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #f9fafb;
+	color: var(--brand);
 }
 
 .site-author-card__role {
 	margin: 0;
-	font-size: 0.95rem;
+	font-size: 0.80rem;
 	font-weight: 500;
-	color: #94a3b8;
+	color: var(--muted);
 	letter-spacing: 0.02em;
 }
 
 .site-author-card__bio {
 	margin: 0;
-	color: #cbd5f5;
+	color: var(--muted);
 	font-size: 0.95rem;
 	line-height: 1.55;
 }
@@ -2208,7 +2211,7 @@ main {
 		grid-template-rows: none;
 		gap: 18px;
 		overflow-x: auto;
-		padding-bottom: 12px;
+		padding-bottom: 54px;
 		scroll-snap-type: x mandatory;
 	}
 
