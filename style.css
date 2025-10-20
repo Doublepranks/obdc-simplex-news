@@ -2155,7 +2155,7 @@ main {
 }
 
 .site-authors__nav {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 12px;
