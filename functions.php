@@ -157,7 +157,7 @@ function obdc_simplex_news_scripts() {
 		true
 	);
 
-        if ( is_front_page() ) {
+        if ( is_front_page() || is_search() ) {
                 wp_enqueue_script(
                         'obdc-simplex-news-front-page',
                         get_template_directory_uri() . '/js/front-page.js',
@@ -370,6 +370,103 @@ function obdc_simplex_news_register_author_feed_route() {
         );
 }
 add_action( 'rest_api_init', 'obdc_simplex_news_register_author_feed_route' );
+
+/**
+ * Register REST endpoint for loading additional search results.
+ */
+function obdc_simplex_news_register_search_feed_route() {
+	register_rest_route(
+		'obdc-simplex-news/v1',
+		'/search-feed',
+		array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => 'obdc_simplex_news_search_feed_callback',
+			'permission_callback' => '__return_true',
+			'args'                => array(
+				'search' => array(
+					'required'          => true,
+					'sanitize_callback' => 'obdc_simplex_news_sanitize_search_term',
+				),
+				'page'   => array(
+					'default'           => 1,
+					'sanitize_callback' => 'absint',
+				),
+			),
+		)
+	);
+}
+add_action( 'rest_api_init', 'obdc_simplex_news_register_search_feed_route' );
+
+/**
+ * Sanitize search term for the REST search feed.
+ *
+ * @param mixed $value Raw search term.
+ * @return string Sanitized search term.
+ */
+function obdc_simplex_news_sanitize_search_term( $value ) {
+	$value = is_scalar( $value ) ? (string) $value : '';
+	$value = wp_unslash( $value );
+	$value = sanitize_text_field( $value );
+	return $value;
+}
+
+/**
+ * Handle REST requests for the search results feed pagination.
+ *
+ * @param WP_REST_Request $request REST request object.
+ * @return WP_REST_Response|WP_Error
+ */
+function obdc_simplex_news_search_feed_callback( WP_REST_Request $request ) {
+	$search_term = $request->get_param( 'search' );
+
+	if ( '' === $search_term ) {
+		return rest_ensure_response(
+			array(
+				'html'       => '',
+				'maxPages'   => 0,
+				'foundPosts' => 0,
+			)
+		);
+	}
+
+	$page = max( 1, absint( $request->get_param( 'page' ) ) );
+
+	$args = array(
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => (int) get_option( 'posts_per_page' ),
+		'paged'          => $page,
+		's'              => $search_term,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'no_found_rows'  => false,
+	);
+
+	$query = new WP_Query( $args );
+
+	ob_start();
+
+	if ( $query->have_posts() ) {
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			get_template_part( 'template-parts/content/card' );
+		}
+	}
+
+	$html        = ob_get_clean();
+	$max_pages   = (int) $query->max_num_pages;
+	$found_posts = (int) $query->found_posts;
+
+	wp_reset_postdata();
+
+	return rest_ensure_response(
+		array(
+			'html'       => $html,
+			'maxPages'   => $max_pages,
+			'foundPosts' => $found_posts,
+		)
+	);
+}
 
 
 /**

@@ -11,8 +11,10 @@ if ( empty( $authors ) ) {
 	return;
 }
 
-$heading = get_theme_mod( 'obdc_simplex_news_authors_heading', __( 'Equipe editorial', 'obdc-simplex-news' ) );
-$heading = apply_filters( 'obdc_simplex_news_authors_heading', $heading );
+$heading = apply_filters(
+	'obdc_simplex_news_authors_heading',
+	__( 'Equipe editorial', 'obdc-simplex-news' )
+);
 $section_id = 'site-authors-title';
 
 ?>
