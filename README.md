@@ -58,6 +58,7 @@ A home é organizada em cinco blocos: barra LIVE persistente, herói editorial (
 - `js/front-page.js`: controla o botão “carregar mais”, estados de loading, `IntersectionObserver` e fallback manual. É reutilizado na home e na busca.
 - `js/author-feed.js`: replica a lógica para páginas de autor.
 - `js/navigation.js`, `js/footer-accordion.js`, `js/share.js` e `js/authors-carousel.js`: responsáveis por navegação, acordeão de rodapé, compartilhamento e carrossel.
+- `js/script.js`: código legado da primeira versão de “load more” (Admin AJAX). Não está enfileirado; mantenha-o apenas como referência ou remova ao fazer limpeza técnica.
 - Endpoints REST definidos em `functions.php`:
   - `GET /wp-json/obdc-simplex-news/v1/front-page-feed?page={n}`
   - `GET /wp-json/obdc-simplex-news/v1/author-feed?author={ID}&page={n}`

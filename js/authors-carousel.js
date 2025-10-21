@@ -7,12 +7,13 @@
 		return;
 	}
 
+	var viewport = carousel.querySelector( '[data-authors-viewport]' );
 	var track = carousel.querySelector( '[data-authors-track]' );
 	var prevButton = carousel.querySelector( '[data-authors-prev]' );
 	var nextButton = carousel.querySelector( '[data-authors-next]' );
 	var cards = Array.prototype.slice.call( carousel.querySelectorAll( '[data-authors-card]' ) );
 
-	if ( ! track || cards.length === 0 ) {
+	if ( ! viewport || ! track || cards.length === 0 ) {
 		if ( prevButton ) {
 			prevButton.setAttribute( 'hidden', 'hidden' );
 		}
@@ -42,9 +43,16 @@
 		}
 
 		var firstCard = cards[0].getBoundingClientRect();
-		var trackWidth = track.getBoundingClientRect().width;
+		var viewportWidth = viewport.getBoundingClientRect().width;
+		var columnGap = 0;
 
-		var cardsPerRow = Math.max( 1, Math.floor( trackWidth / firstCard.width ) );
+		if ( typeof window.getComputedStyle === 'function' ) {
+			var trackStyles = window.getComputedStyle( track );
+			columnGap = parseFloat( trackStyles.columnGap || trackStyles.gridColumnGap || 0 );
+		}
+
+		var effectiveCardWidth = firstCard.width + columnGap;
+		var cardsPerRow = Math.max( 1, Math.floor( viewportWidth / effectiveCardWidth ) );
 		var rows = 2;
 		cardsPerPage = Math.max( 1, cardsPerRow * rows );
 		totalPages = Math.max( 1, Math.ceil( cards.length / cardsPerPage ) );
@@ -114,9 +122,17 @@
 	function enableDesktopMode() {
 		isDesktop = true;
 		track.style.removeProperty( 'overflow' );
+		track.style.removeProperty( 'overflowX' );
 		track.style.removeProperty( 'scrollSnapType' );
 		track.style.removeProperty( 'scrollBehavior' );
 		track.style.transform = 'translateX(0)';
+
+		viewport.style.overflow = 'hidden';
+		viewport.style.removeProperty( 'overflowX' );
+		viewport.style.removeProperty( 'scrollSnapType' );
+		viewport.style.removeProperty( 'scrollBehavior' );
+		viewport.scrollLeft = 0;
+
 		updateMetrics();
 		updateButtons();
 		goToPage( currentPage );
@@ -135,9 +151,14 @@
 		isDesktop = false;
 		track.style.transform = 'none';
 		track.style.transitionDuration = '0ms';
-		track.style.overflowX = 'auto';
-		track.style.scrollSnapType = 'x mandatory';
-		track.style.scrollBehavior = reduceMotion.matches ? 'auto' : 'smooth';
+		track.style.removeProperty( 'overflow' );
+		track.style.removeProperty( 'overflowX' );
+		track.style.removeProperty( 'scrollSnapType' );
+		track.style.removeProperty( 'scrollBehavior' );
+
+		viewport.style.overflowX = 'auto';
+		viewport.style.scrollSnapType = 'x mandatory';
+		viewport.style.scrollBehavior = reduceMotion.matches ? 'auto' : 'smooth';
 
 		if ( prevButton ) {
 			prevButton.setAttribute( 'hidden', 'hidden' );

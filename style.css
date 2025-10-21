@@ -2072,6 +2072,43 @@ main {
 
 .site-authors__wrapper {
 	position: relative;
+	display: grid;
+	gap: 24px;
+}
+
+.site-authors__viewport {
+	position: relative;
+	overflow: hidden;
+	border-radius: 24px;
+	background: var(--card);
+	box-shadow: 0 28px 44px rgba(15, 23, 42, 0.16);
+	padding: 28px 32px;
+}
+
+.site-authors__viewport::before,
+.site-authors__viewport::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 72px;
+	pointer-events: none;
+	background: linear-gradient(to right, var(--card) 0%, rgba(0, 0, 0, 0) 100%);
+	z-index: 1;
+}
+
+.site-authors__viewport::before {
+	left: 0;
+}
+
+.site-authors__viewport::after {
+	right: 0;
+	transform: scaleX(-1);
+}
+
+.site-authors__viewport > * {
+	position: relative;
+	z-index: 2;
 }
 
 .site-authors__track {
@@ -2155,7 +2192,7 @@ main {
 }
 
 .site-authors__nav {
-	display: inline-flex;
+	display: initial;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 12px;
@@ -2204,15 +2241,27 @@ main {
 		justify-content: center;
 	}
 
+	.site-authors__viewport {
+		padding: 0 0 54px;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: 16px;
+		/* Hide gradients on mobile to avoid clipping */
+		box-shadow: none;
+	}
+
+	.site-authors__viewport::before,
+	.site-authors__viewport::after {
+		display: none;
+	}
+
 	.site-authors__track {
 		display: grid;
 		grid-auto-flow: column;
 		grid-auto-columns: 80%;
 		grid-template-rows: none;
 		gap: 18px;
-		overflow-x: auto;
-		padding-bottom: 54px;
-		scroll-snap-type: x mandatory;
+		padding: 28px 16px 0;
 	}
 
 	.site-author-card {

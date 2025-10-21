@@ -28,7 +28,8 @@ $section_id = 'site-authors-title';
 		</header>
 
 		<div class="site-authors__wrapper" data-authors-carousel>
-			<div class="site-authors__track" data-authors-track aria-live="polite" aria-atomic="false">
+			<div class="site-authors__viewport" data-authors-viewport>
+				<div class="site-authors__track" data-authors-track aria-live="polite" aria-atomic="false">
 				<?php foreach ( $authors as $author ) : ?>
 					<article class="site-author-card" data-authors-card>
 						<a class="site-author-card__link" href="<?php echo esc_url( $author['permalink'] ); ?>">
@@ -53,6 +54,7 @@ $section_id = 'site-authors-title';
 						</a>
 					</article>
 				<?php endforeach; ?>
+				</div>
 			</div>
 
 			<div class="site-authors__nav" aria-label="<?php esc_attr_e( 'Navegar pelo mural de autores', 'obdc-simplex-news' ); ?>">
