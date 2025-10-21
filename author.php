@@ -28,9 +28,10 @@ $auto_load_limit    = apply_filters( 'obdc_simplex_news_author_autoload_limit', 
 $auto_load_limit    = max( 0, absint( $auto_load_limit ) );
 $author_feed_route  = rest_url( 'obdc-simplex-news/v1/author-feed' );
 $author_feed_params = array(
-	'author' => $author_id,
+	'author_id' => $author_id,
 );
 $author_feed_endpoint = add_query_arg( $author_feed_params, $author_feed_route );
+$author_feed_endpoint = wp_make_link_relative( $author_feed_endpoint );
 
 $meta_fallbacks = array(
 	'author_title' => array( 'title', 'job_title' ),

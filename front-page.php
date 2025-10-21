@@ -30,6 +30,7 @@ if ( ! empty( $featured_data['excluded_ids'] ) ) {
 }
 
 $feed_endpoint    = rest_url( 'obdc-simplex-news/v1/front-page-feed' );
+$feed_endpoint    = wp_make_link_relative( $feed_endpoint );
 $rest_nonce       = wp_create_nonce( 'wp_rest' );
 $load_more_text   = __( 'Carregar mais', 'obdc-simplex-news' );
 $loading_text     = __( 'Carregando…', 'obdc-simplex-news' );

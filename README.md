@@ -1,97 +1,97 @@
 # ObDC Simplex News
 
-Tema WordPress modular e leve pensado para redações enxutas. Replica o protótipo visual da ObDC, priorizando performance, acessibilidade, SEO e um fluxo editorial baseado em destaques, feed contínuo e ranking de audiência.
+Lightweight, modular WordPress theme designed for small newsrooms. It mirrors the ObDC visual prototype with a focus on performance, accessibility, SEO, and an editorial workflow built around featured stories, a continuous feed, and audience ranking.
 
-## Requisitos
+## Requirements
 
-- WordPress 6.5 ou superior (REST habilitada e permalinks amigáveis).
-- PHP 8.0 ou superior.
-- Extensões PHP padrão do WordPress (curl, dom, gd).
-- Permissões para criar/editar menus, widgets e opções no Customizer.
+- WordPress 6.5 or newer (REST API enabled and pretty permalinks).
+- PHP 8.0 or newer.
+- Standard WordPress PHP extensions (curl, dom, gd).
+- Permission to manage menus, widgets, and Customizer options.
 
-## Visão Geral
+## Overview
 
-A home é organizada em cinco blocos: barra LIVE persistente, herói editorial (post fixo), destaques secundários, feed cronológico com “carregar mais” e coluna “Mais lidas”. Os componentes vivem em `template-parts`, permitindo reaproveitar blocos em outras páginas. A base deriva do Underscores (`_s`) com ajustes para uma redação digital.
+The front page is organised in five blocks: persistent LIVE bar, hero (sticky post), secondary highlights, continuous feed with “load more”, and the “Mais lidas” column. Components live in `template-parts/`, making it easy to reuse them elsewhere. The theme is based on the Underscores (`_s`) boilerplate with newsroom-focused tweaks.
 
-## Principais Recursos
+## Key Features
 
-- Layout responsive-first com hero + cards, tipografia Inter/Merriweather via Google Fonts (`wp_resource_hints` e `font-display: swap`).
-- Barra superior LIVE configurável no Customizer (status, texto, CNPJ e cidade).
-- Painel editorial alimentado por posts sticky, com fallback automático para posts recentes.
-- Feed infinito usando REST (`js/front-page.js`) com `IntersectionObserver` e fallback manual.
-- Página de autor com carregamento progressivo (`js/author-feed.js`) sobre o endpoint dedicado.
-- Resultados de busca com paginação automática via REST, reutilizando o mesmo script da home.
-- Sidebar “Mais lidas” baseada na meta `post_views`, compatível com Post Views Counter e fallback manual em `inc/helpers.php`.
-- Slots de anúncio prontos em `template-parts/ads` (topo, feed e espaços extras via widgets).
-- SEO e redes sociais: meta tags OG/Twitter (`inc/seo-meta.php`), canonical automático e schema (`inc/structured-data.php`).
-- Acessibilidade: semântica consistente, foco visível, aria labels e correções de skip link (`inc/template-functions.php`).
-- Tradução preparada (`load_theme_textdomain`) e integração básica com Jetpack (`inc/jetpack.php`).
+- Responsive-first layout with hero + cards using Inter/Merriweather via Google Fonts (`wp_resource_hints` + `font-display: swap`).
+- LIVE ticker configurable in the Customizer (status, text, CNPJ, city).
+- Editorial panel powered by sticky posts with automatic fallback to recent posts.
+- Infinite feed driven by REST (`js/front-page.js`) with `IntersectionObserver` and manual fallback.
+- Author archive with progressive loading (`js/author-feed.js`) via the dedicated REST endpoint.
+- Search result pages reuse the same infinite-scroll behaviour as the home feed.
+- “Mais lidas” sidebar based on the `post_views` meta key; fallback helpers exist in `inc/helpers.php`.
+- Ad slots ready in `template-parts/ads` (top/home feed) and via widgets.
+- SEO: OG/Twitter cards (`inc/seo-meta.php`), canonical links, and Schema.org structured data (`inc/structured-data.php`).
+- Accessibility enhancements (`inc/template-functions.php`) and translation-ready strings (`load_theme_textdomain`).
+- Basic Jetpack integration stub (`inc/jetpack.php`).
 
-## Instalação
+## Installation
 
-1. Gere o pacote `.zip` ou clone em `wp-content/themes`.
-2. No painel WordPress acesse `Aparência > Temas > Adicionar novo > Enviar tema`.
-3. Ative o tema “ObDC Simplex News”.
-4. Confirme em `Configurações > Links Permanentes` que os permalinks amigáveis estão habilitados (necessário para os endpoints REST).
+1. Zip the theme or clone it into `wp-content/themes`.
+2. In the WordPress dashboard go to `Appearance > Themes > Add New > Upload Theme`.
+3. Activate “ObDC Simplex News”.
+4. Visit `Settings > Permalinks` and ensure pretty permalinks are enabled (required for the REST endpoints).
 
-## Configuração Inicial
+## Initial Setup
 
-1. Abra `Aparência > Personalizar > Configurações do Tema` e ajuste ticker LIVE, CNPJ e cidade.
-2. Em `Aparência > Menus`, crie os menus registrados (`main`, `footer-news`, `footer-brazil`, `footer-site`, `footer-opinion`, `footer-sports`, `footer-entertainment`, `footer-social`).
-3. Defina os posts sticky que alimentarão o herói e os destaques.
-4. Instale um contador de visualizações (ex.: Post Views Counter) ou utilize `obdc_simplex_news_increment_post_views()` em `single.php` para suprir a lista “Mais lidas”.
-5. Substitua `screenshot.png` por uma imagem 1200x900 para exibição no painel de temas.
-6. Adicione `images/logo.png` e `images/og-default.jpg` para alimentar os metadados e esquema. Ajuste conforme a identidade visual.
+1. Open `Appearance > Customize > Configurações do Tema` to configure LIVE ticker, CNPJ, and city.
+2. Create menus for every registered location (`main`, `footer-news`, `footer-brazil`, `footer-site`, `footer-opinion`, `footer-sports`, `footer-entertainment`, `footer-social`).
+3. Choose the sticky posts that will fill the hero and highlight slots.
+4. Install a post-views plugin (e.g. Post Views Counter) or call `obdc_simplex_news_increment_post_views()` in `single.php`.
+5. Replace `screenshot.png` with a 1200x900 preview for wp-admin.
+6. Add `images/logo.png` and `images/og-default.jpg` to feed SEO/meta defaults (adjust sizes as needed).
 
-## Conteúdo Editorial
+## Editorial Content
 
-- **Hero e destaques**: `template-parts/home/hero.php` e `template-parts/home/highlights.php` consomem `obdc_simplex_news_get_front_page_featured_data()`, que cacheia sticky posts e garante exclusão no feed.
-- **Feed da home**: `front-page.php` monta o loop excluindo IDs destacados e injeta dados de paginação para o JS.
-- **Busca**: `search.php` replica a estrutura do feed infinito reutilizando `js/front-page.js` via endpoint REST dedicado.
-- **Cards**: `template-parts/content/card.php` define o layout padrão do feed.
-- **Mais lidas**: `template-parts/sidebar/most-read.php` lê a meta `post_views`; personalize `meta_key` se necessário.
-- **Top bar LIVE**: `template-parts/topbar.php` usa valores do Customizer, com espaço para integrar fontes externas.
-- **Autores em destaque**: `template-parts/front-page/authors-carousel.php` exibe dados de `obdc_simplex_news_get_featured_authors()`. O título da seção permanece “Equipe editorial”, mas pode ser alterado via filtro `obdc_simplex_news_authors_heading`.
+- **Hero & highlights:** `template-parts/home/hero.php` and `template-parts/home/highlights.php` consume `obdc_simplex_news_get_front_page_featured_data()` (cached sticky posts with exclusion list).
+- **Home feed:** `front-page.php` builds the loop excluding featured IDs and exposes pagination data for JS.
+- **Search:** `search.php` mirrors the infinite-scroll structure, consuming the search REST endpoint.
+- **Cards:** `template-parts/content/card.php` defines the standard feed card layout.
+- **Mais lidas:** `template-parts/sidebar/most-read.php` reads `post_views`; change the meta key if needed.
+- **LIVE bar:** `template-parts/topbar.php` renders Customizer values with hooks for external data.
+- **Authors carousel:** `template-parts/front-page/authors-carousel.php` displays data from `obdc_simplex_news_get_featured_authors()`. Title defaults to “Equipe editorial” and can be filtered via `obdc_simplex_news_authors_heading`.
 
-## Scripts e Endpoints
+## Scripts & REST Endpoints
 
-- `js/front-page.js`: controla o botão “carregar mais”, estados de loading, `IntersectionObserver` e fallback manual. É reutilizado na home e na busca.
-- `js/author-feed.js`: replica a lógica para páginas de autor.
-- `js/navigation.js`, `js/footer-accordion.js`, `js/share.js` e `js/authors-carousel.js`: responsáveis por navegação, acordeão de rodapé, compartilhamento e carrossel.
-- `js/script.js`: código legado da primeira versão de “load more” (Admin AJAX). Não está enfileirado; mantenha-o apenas como referência ou remova ao fazer limpeza técnica.
-- Endpoints REST definidos em `functions.php`:
+- `js/front-page.js`: manages “load more”, loading states, `IntersectionObserver`, and fallbacks. Reused on the home feed and search results.
+- `js/author-feed.js`: extends the same behaviour to author archives.
+- `js/navigation.js`, `js/footer-accordion.js`, `js/share.js`, `js/authors-carousel.js`: handle responsive menu/drawer, footer accordion, sharing utilities, and the authors carousel viewport.
+- `js/script.js`: legacy AJAX load-more prototype (admin-ajax). Not enqueued; keep only as reference or remove during refactors.
+- REST endpoints registered in `functions.php` (all URLs are generated relative to avoid mixed-host issues):
   - `GET /wp-json/obdc-simplex-news/v1/front-page-feed?page={n}`
-  - `GET /wp-json/obdc-simplex-news/v1/author-feed?author={ID}&page={n}`
+  - `GET /wp-json/obdc-simplex-news/v1/author-feed?author_id={ID}&page={n}` (legacy `author=` still works but new code should prefer `author_id`)
   - `GET /wp-json/obdc-simplex-news/v1/search-feed?search={query}&page={n}`
-  Todos retornam HTML renderizado via template parts, pronto para injeção no DOM.
-- Filtros úteis: `obdc_simplex_news_front_page_autoload_limit`, `obdc_simplex_news_author_autoload_limit` e `obdc_simplex_news_search_autoload_limit` controlam o número de páginas carregadas automaticamente.
+  Each endpoint returns rendered HTML ready to inject in the DOM (`load more` scripts expect JSON with `html`, `maxPages`, `foundPosts`).
+- Configurable autoload limits: `obdc_simplex_news_front_page_autoload_limit`, `obdc_simplex_news_author_autoload_limit`, `obdc_simplex_news_search_autoload_limit`.
 
-## Desenvolvimento
+## Development
 
-- Consulte `LOCAL_DEV.md` para subir o ambiente Docker (`docker compose up -d`). O compose usa `http://192.168.15.8:8080` por padrão; ajuste `WP_HOME`/`WP_SITEURL` se necessário.
-- Não há build step: CSS e JS são servidos diretamente de `style.css` e `js/*.js`.
-- Para novas traduções, utilize `wp i18n make-pot` apontando para o diretório do tema e gere arquivos em `languages/`.
+- See `LOCAL_DEV.md` for Docker instructions (`docker compose up -d`). Defaults to `http://192.168.15.8:8080`; adjust `WP_HOME`/`WP_SITEURL` for your network.
+- No build step: CSS/JS are enqueued from `style.css` and `js/*.js`.
+- Generate new translations with `wp i18n make-pot` targeting the theme directory and output to `languages/`.
 
-## Estrutura de Pastas (resumo)
+## Folder Structure (summary)
 
 ```
 .
-|-- inc/                # Funções auxiliares, SEO, Customizer, schema
-|-- js/                 # Scripts: navegação, feed, autores, share
-|-- template-parts/     # Componentes reutilizáveis (ads, cards, sidebar etc.)
-|-- author.php          # Template de arquivo de autor com feed assíncrono
-|-- front-page.php      # Home com sticky posts e feed infinito
-|-- functions.php       # Suportes, menus, REST e enqueues
-|-- search.php          # Resultados com feed infinito via REST
-|-- single.php          # Layout completo de artigo
-|-- style.css           # Metadados do tema e estilos globais
+|-- inc/                # Helpers, SEO, Customizer, schema
+|-- js/                 # Navigation, feeds, authors, share scripts
+|-- template-parts/     # Reusable components (ads, cards, sidebar, etc.)
+|-- author.php          # Author archive with async feed
+|-- front-page.php      # Home with sticky posts + infinite feed
+|-- functions.php       # Theme supports, menus, REST endpoints
+|-- search.php          # Search results with infinite feed
+|-- single.php          # Full article layout
+|-- style.css           # Theme metadata & global styles
 `-- README.md
 ```
 
-## Licença
+## License
 
 GPL-2.0-or-later.
 
-## Autor
+## Author
 
 Samuel Pantoja — https://www.obrasildecima.com.br

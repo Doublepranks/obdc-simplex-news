@@ -45,6 +45,7 @@ get_header(); ?>
 						),
 						rest_url( 'obdc-simplex-news/v1/search-feed' )
 					);
+					$search_endpoint = wp_make_link_relative( $search_endpoint );
 					$auto_load_limit  = apply_filters( 'obdc_simplex_news_search_autoload_limit', 3 );
 					$auto_load_limit  = max( 0, absint( $auto_load_limit ) );
 					$button_disabled  = $max_pages <= 1;

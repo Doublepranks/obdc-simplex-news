@@ -357,7 +357,7 @@ function obdc_simplex_news_register_author_feed_route() {
                         'callback'            => 'obdc_simplex_news_author_feed_callback',
                         'permission_callback' => '__return_true',
                         'args'                => array(
-                                'author' => array(
+                                'author_id' => array(
                                         'required'          => true,
                                         'sanitize_callback' => 'absint',
                                 ),
@@ -476,7 +476,12 @@ function obdc_simplex_news_search_feed_callback( WP_REST_Request $request ) {
  * @return WP_REST_Response|WP_Error
  */
 function obdc_simplex_news_author_feed_callback( WP_REST_Request $request ) {
-        $author_id = absint( $request->get_param( 'author' ) );
+        $author_id = absint( $request->get_param( 'author_id' ) );
+
+        if ( ! $author_id ) {
+                // Backward compatibility with older query parameter.
+                $author_id = absint( $request->get_param( 'author' ) );
+        }
 
         if ( ! $author_id || ! get_user_by( 'id', $author_id ) ) {
                 return new WP_Error(
