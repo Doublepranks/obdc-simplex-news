@@ -2246,6 +2246,7 @@ main {
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
 		scroll-padding-inline: 16px;
+		background: none;
 		/* Hide gradients on mobile to avoid clipping */
 		box-shadow: none;
 	}
