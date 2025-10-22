@@ -1359,7 +1359,7 @@ main {
 	border-radius: 20px;
 	background: #fff;
 	box-shadow: 0 18px 32px rgba(15, 23, 42, 0.06);
-	max-width: 920px;
+	width: 920px;
 	margin: 0 auto;
 }
 
@@ -1993,6 +1993,8 @@ main {
 :where(figure) {
     margin: 0 0 0.2em;
 }
+/* fim dos estilos que sobrescrevem estilos padrão do wordpress */
+
 .search-results-area {
 	margin-top: 2rem;
 }
@@ -2233,7 +2235,7 @@ main {
 
 @media (max-width: 1023px) {
 	.site-authors {
-		padding: 48px 0 64px;
+		padding: 48px 0 0px !important;
 	}
 
 	.site-authors__header {
@@ -2246,7 +2248,7 @@ main {
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
 		scroll-padding-inline: 16px;
-		background: none;
+		background: none !important;
 		/* Hide gradients on mobile to avoid clipping */
 		box-shadow: none;
 	}
@@ -2262,7 +2264,7 @@ main {
 		grid-auto-columns: 80%;
 		grid-template-rows: none;
 		gap: 18px;
-		padding: 28px 16px 0;
+		padding: 28px 16px 59px !important;
 	}
 
 	.site-author-card {
