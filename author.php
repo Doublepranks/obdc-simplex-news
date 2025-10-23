@@ -71,6 +71,10 @@ $social_networks = array(
 		'keys'  => array( 'user_substack', 'substack' ),
 		'label' => __( 'Substack', 'obdc-simplex-news' ),
 	),
+	'youtube'   => array(
+		'keys'  => array( 'user_youtube', 'youtube' ),
+		'label' => __( 'YouTube', 'obdc-simplex-news' ),
+	),
 );
 
 $author_social_links = array();
@@ -153,13 +157,16 @@ foreach ( $social_networks as $network_slug => $network_data ) {
 								$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm6.25-.88a1.12 1.12 0 1 1-2.24 0 1.12 1.12 0 0 1 2.24 0z"/></svg>';
 								break;
 							case 'facebook':
-								$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 22H9v-8H6v-4h3V6.7C9 4 10.6 2 13.9 2H18v4h-2.7c-1 0-1.3.4-1.3 1.2V10h4l-.6 4h-3.4z"/></svg>';
+						$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 22H9v-8H6v-4h3V6.7C9 4 10.6 2 13.9 2H18v4h-2.7c-1 0-1.3.4-1.3 1.2V10h4l-.6 4h-3.4z"/></svg>';
 								break;
 							case 'linkedin':
 								$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0zM0 8.82h4.95V24H0zm7.98 0H12v2.1h.05c.6-1.1 2-2.2 4.1-2.2 3.9 0 4.9 2.5 4.9 5.8V24h-4.95v-5.6c0-1.3 0-3-1.9-3s-2.2 1.4-2.2 2.9V24H7.98z"/></svg>';
 								break;
 							case 'substack':
 								$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v3H3V4zm0 5h18v12l-9-3-9 3V9z"/></svg>';
+								break;
+							case 'youtube':
+								$icon_markup = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.4 2.4 0 0 0-1.7-1.7C18.2 5 12 5 12 5s-6.2 0-7.9.5A2.4 2.4 0 0 0 2.4 7.2C2 9 2 12 2 12s0 3 .4 4.8a2.4 2.4 0 0 0 1.7 1.7c1.7.5 7.9.5 7.9.5s6.2 0 7.9-.5a2.4 2.4 0 0 0 1.7-1.7c.4-1.8.4-4.8.4-4.8s0-3-.4-4.8zM10 15.5v-7l6 3.5-6 3.5z"/></svg>';
 								break;
 						}
 					?>
