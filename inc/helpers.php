@@ -54,12 +54,14 @@ function obdc_simplex_news_get_first_category_name( $post_id = null ) {
 		$post_id = get_the_ID();
 	}
 
-	// Yoast SEO primary category support.
-	$primary_cat_id = (int) get_post_meta( $post_id, '_yoast_wpseo_primary_category', true );
-	if ( $primary_cat_id ) {
-		$primary_term = get_term( $primary_cat_id, 'category' );
-		if ( $primary_term && ! is_wp_error( $primary_term ) ) {
-			return esc_html( $primary_term->name );
+	// Yoast SEO primary category support (only when plugin is active).
+	if ( defined( 'WPSEO_VERSION' ) || class_exists( 'WPSEO_Primary_Term' ) ) {
+		$primary_cat_id = (int) get_post_meta( $post_id, '_yoast_wpseo_primary_category', true );
+		if ( $primary_cat_id ) {
+			$primary_term = get_term( $primary_cat_id, 'category' );
+			if ( $primary_term && ! is_wp_error( $primary_term ) ) {
+				return esc_html( $primary_term->name );
+			}
 		}
 	}
 
