@@ -50,16 +50,25 @@ function obdc_simplex_news_get_post_views( $post_id = null ) {
  * @return string The category name or empty string.
  */
 function obdc_simplex_news_get_first_category_name( $post_id = null ) {
-        if ( ! $post_id ) {
-                $post_id = get_the_ID();
-        }
+	if ( ! $post_id ) {
+		$post_id = get_the_ID();
+	}
 
-        $categories = get_the_category( $post_id );
-        if ( ! empty( $categories ) ) {
-                return esc_html( $categories[0]->name );
-        }
+	// Yoast SEO primary category support.
+	$primary_cat_id = (int) get_post_meta( $post_id, '_yoast_wpseo_primary_category', true );
+	if ( $primary_cat_id ) {
+		$primary_term = get_term( $primary_cat_id, 'category' );
+		if ( $primary_term && ! is_wp_error( $primary_term ) ) {
+			return esc_html( $primary_term->name );
+		}
+	}
 
-        return '';
+	$categories = get_the_category( $post_id );
+	if ( ! empty( $categories ) ) {
+		return esc_html( $categories[0]->name );
+	}
+
+	return '';
 }
 
 

@@ -24,12 +24,14 @@ endif;
 	</a>
 	<div>
 		<div class="kicker">
-			<?php 
-			$categories = get_the_category();
-			if ( ! empty( $categories ) ) {
-				echo esc_html( $categories[0]->name );
+		<?php
+		if ( function_exists( 'obdc_simplex_news_get_first_category_name' ) ) {
+			$category_name = obdc_simplex_news_get_first_category_name( get_the_ID() );
+			if ( $category_name ) {
+				echo esc_html( $category_name );
 			}
-			?>
+		}
+		?>
 		</div>
 		<h3><a href="<?php the_permalink(); ?>"> <?php the_title(); ?></a></h3>
 		<p class="excerpt"> <?php echo wp_trim_words( get_the_excerpt(), 24 ); ?> </p>

@@ -47,10 +47,12 @@ if ( $most->have_posts() ) : ?>
 					</div>
 					<div class="content">
 						<div class="kicker">
-							<?php 
-							$categories = get_the_category();
-							if ( ! empty( $categories ) ) {
-								echo esc_html( $categories[0]->name );
+							<?php
+							if ( function_exists( 'obdc_simplex_news_get_first_category_name' ) ) {
+								$category_name = obdc_simplex_news_get_first_category_name( get_the_ID() );
+								if ( $category_name ) {
+									echo esc_html( $category_name );
+								}
 							}
 							?>
 						</div>

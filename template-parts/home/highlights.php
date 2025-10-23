@@ -22,8 +22,9 @@ if ( ! empty( $highlight_ids ) ) :
                 $title        = get_the_title( $highlight_id );
                 $permalink    = get_permalink( $highlight_id );
                 $thumbnail    = get_the_post_thumbnail( $highlight_id, 'card', array( 'alt' => esc_attr( $title ) ) );
-                $categories   = get_the_category( $highlight_id );
-                $category     = ! empty( $categories ) ? $categories[0]->name : '';
+                $category     = function_exists( 'obdc_simplex_news_get_first_category_name' )
+                        ? obdc_simplex_news_get_first_category_name( $highlight_id )
+                        : '';
                 $published_at = human_time_diff( get_post_time( 'U', false, $highlight_id ), current_time( 'timestamp' ) );
         ?>
         <article class="hero-card">

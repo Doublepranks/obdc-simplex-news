@@ -17,8 +17,9 @@ if ( $hero_id ) :
         $title        = get_the_title( $hero_id );
         $permalink    = get_permalink( $hero_id );
         $thumbnail    = get_the_post_thumbnail( $hero_id, 'hero', array( 'alt' => esc_attr( $title ) ) );
-        $categories   = get_the_category( $hero_id );
-        $category     = ! empty( $categories ) ? $categories[0]->name : '';
+        $category     = function_exists( 'obdc_simplex_news_get_first_category_name' )
+                ? obdc_simplex_news_get_first_category_name( $hero_id )
+                : '';
         $excerpt      = wp_trim_words( wp_strip_all_tags( get_the_excerpt( $hero_id ) ), 30 );
         $author_id    = (int) get_post_field( 'post_author', $hero_id );
         $author_name  = get_the_author_meta( 'display_name', $author_id );
