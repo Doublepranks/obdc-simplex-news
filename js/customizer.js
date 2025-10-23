@@ -11,17 +11,6 @@
 		} );
 	} );
 
-	// Live preview for live text
-	wp.customize( 'obdc_simplex_news_live_text', function( value ) {
-		value.bind( function( to ) {
-			if ( to && to.length > 0 ) {
-				$( '.topbar .ticker span' ).not( ':first-child' ).text( to );
-			} else {
-				$( '.topbar .ticker span' ).not( ':first-child' ).text( '' );
-			}
-		} );
-	} );
-
 	// Live preview for CNPJ and city
 	wp.customize( 'obdc_simplex_news_cnpj', function( value ) {
 		value.bind( function( to ) {

@@ -720,3 +720,112 @@ function obdc_simplex_news_has_featured_authors() {
 	$authors = obdc_simplex_news_get_featured_authors( 1 );
 	return ! empty( $authors );
 }
+
+/**
+ * Retrieve YouTube LIVE banner data based on theme settings.
+ *
+ * @return array{
+ *     enabled: bool,
+ *     live: bool,
+ *     video_title: string,
+ *     video_url: string,
+ *     fallback_text: string
+ * } Prepared data for the top bar.
+ */
+function obdc_simplex_news_get_youtube_live_banner_data() {
+	static $cached = null;
+
+	if ( null !== $cached ) {
+		return $cached;
+	}
+
+	$enabled       = (bool) get_theme_mod( 'obdc_simplex_news_youtube_live_enabled', false );
+	$api_key       = trim( (string) get_theme_mod( 'obdc_simplex_news_youtube_api_key', '' ) );
+	$channel_id    = trim( (string) get_theme_mod( 'obdc_simplex_news_youtube_channel_id', '' ) );
+	$fallback_text = get_theme_mod(
+		'obdc_simplex_news_youtube_fallback_text',
+		__( 'Um Brasil que pensa, comeca de cima.', 'obdc-simplex-news' )
+	);
+	$fallback_text = sanitize_text_field( $fallback_text );
+
+	$default = array(
+		'enabled'       => false,
+		'live'          => false,
+		'video_title'   => '',
+		'video_url'     => '',
+		'fallback_text' => $fallback_text,
+	);
+
+	if ( ! $enabled || '' === $api_key || '' === $channel_id ) {
+		$cached = $default;
+		return $cached;
+	}
+
+	$transient_key = sprintf( 'obdc_simplex_news_yt_live_%s', md5( $channel_id ) );
+	$live_data     = get_transient( $transient_key );
+
+	if ( false === $live_data ) {
+		$query_args = array(
+			'part'       => 'snippet',
+			'channelId'  => $channel_id,
+			'eventType'  => 'live',
+			'type'       => 'video',
+			'maxResults' => 1,
+			'key'        => $api_key,
+		);
+
+		$request_url = add_query_arg( $query_args, 'https://www.googleapis.com/youtube/v3/search' );
+		$response    = wp_remote_get(
+			$request_url,
+			array(
+				'timeout' => 10,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			$live_data = array(
+				'live' => false,
+			);
+		} else {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( ! empty( $body['items'] ) && isset( $body['items'][0]['id']['videoId'] ) ) {
+				$item         = $body['items'][0];
+				$video_id     = sanitize_text_field( $item['id']['videoId'] );
+				$video_title  = isset( $item['snippet']['title'] ) ? sanitize_text_field( $item['snippet']['title'] ) : '';
+				$live_data    = array(
+					'live'        => true,
+					'video_id'    => $video_id,
+					'video_title' => $video_title,
+				);
+			} else {
+				$live_data = array(
+					'live' => false,
+				);
+			}
+		}
+
+		$cache_ttl = (int) apply_filters( 'obdc_simplex_news_youtube_live_cache_ttl', 10 * MINUTE_IN_SECONDS );
+		set_transient( $transient_key, $live_data, max( 60, $cache_ttl ) );
+	}
+
+	if ( ! empty( $live_data['live'] ) && ! empty( $live_data['video_id'] ) ) {
+		$cached = array(
+			'enabled'       => true,
+			'live'          => true,
+			'video_title'   => $live_data['video_title'],
+			'video_url'     => sprintf( 'https://www.youtube.com/watch?v=%s', rawurlencode( $live_data['video_id'] ) ),
+			'fallback_text' => $fallback_text,
+		);
+	} else {
+		$cached = array(
+			'enabled'       => true,
+			'live'          => false,
+			'video_title'   => '',
+			'video_url'     => '',
+			'fallback_text' => $fallback_text,
+		);
+	}
+
+	return $cached;
+}

@@ -44,23 +44,94 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 		)
 	);
 
-	// Live text.
+	// YouTube LIVE integration toggle.
 	$wp_customize->add_setting(
-		'obdc_simplex_news_live_text',
+		'obdc_simplex_news_youtube_live_enabled',
 		array(
-			'default'           => __( 'Sinal ao vivo quando o canal estiver no ar', 'obdc-simplex-news' ),
+			'default'           => false,
 			'type'              => 'theme_mod',
 			'capability'        => 'edit_theme_options',
-			'sanitize_callback' => 'obdc_simplex_news_sanitize_live_text',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_checkbox',
 		)
 	);
 
 	$wp_customize->add_control(
-		'obdc_simplex_news_live_text',
+		'obdc_simplex_news_youtube_live_enabled',
 		array(
-			'label'   => __( 'Texto do Ticker LIVE', 'obdc-simplex-news' ),
-			'section' => 'obdc_simplex_news_theme_settings',
-			'type'    => 'text',
+			'label'       => __( 'Usar ticker automatico do YouTube', 'obdc-simplex-news' ),
+			'description' => __( 'Ative para exibir o status da transmissao ao vivo do canal configurado. Quando off-line, o texto manual sera exibido.', 'obdc-simplex-news' ),
+			'section'     => 'obdc_simplex_news_theme_settings',
+			'type'        => 'checkbox',
+		)
+	);
+
+	// YouTube API key.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_youtube_api_key',
+		array(
+			'default'           => '',
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_api_key',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_youtube_api_key',
+		array(
+			'label'       => __( 'YouTube API Key', 'obdc-simplex-news' ),
+			'description' => __( 'Chave usada para consultar o status das lives. Guarde em local seguro.', 'obdc-simplex-news' ),
+			'section'     => 'obdc_simplex_news_theme_settings',
+			'type'        => 'text',
+			'input_attrs' => array(
+				'autocomplete' => 'off',
+				'placeholder'  => __( 'AIza...', 'obdc-simplex-news' ),
+			),
+		)
+	);
+
+	// YouTube channel ID.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_youtube_channel_id',
+		array(
+			'default'           => 'UCQ9rCTknypukp6KgQPkZC8Q',
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_channel_id',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_youtube_channel_id',
+		array(
+			'label'       => __( 'YouTube Channel ID', 'obdc-simplex-news' ),
+			'description' => __( 'ID do canal que deve ser monitorado para transmissao ao vivo.', 'obdc-simplex-news' ),
+			'section'     => 'obdc_simplex_news_theme_settings',
+			'type'        => 'text',
+			'input_attrs' => array(
+				'placeholder' => __( 'UCxxxxxxxxxxxxxxxxxxxxxx', 'obdc-simplex-news' ),
+			),
+		)
+	);
+
+	// Live fallback text.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_youtube_fallback_text',
+		array(
+			'default'           => __( 'Um Brasil que pensa, comeca de cima.', 'obdc-simplex-news' ),
+			'type'              => 'theme_mod',
+			'capability'        => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_fallback_text',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_youtube_fallback_text',
+		array(
+			'label'       => __( 'Texto quando nao ha live', 'obdc-simplex-news' ),
+			'description' => __( 'Mensagem exibida na barra quando nao houver transmissao ao vivo.', 'obdc-simplex-news' ),
+			'section'     => 'obdc_simplex_news_theme_settings',
+			'type'        => 'text',
 		)
 	);
 
@@ -415,6 +486,49 @@ function obdc_simplex_news_sanitize_live_text( $input ) {
 	$input = sanitize_text_field( $input );
 	$input = substr( $input, 0, 150 );
 	return $input;
+}
+
+/**
+ * Sanitize YouTube API key.
+ *
+ * @param string $input Raw API key.
+ * @return string Sanitized key.
+ */
+function obdc_simplex_news_sanitize_api_key( $input ) {
+	if ( ! is_string( $input ) ) {
+		return '';
+	}
+
+	$input = trim( $input );
+	$input = sanitize_text_field( $input );
+	return substr( $input, 0, 128 );
+}
+
+/**
+ * Sanitize YouTube channel ID.
+ *
+ * @param string $input Raw channel ID.
+ * @return string Sanitized channel ID.
+ */
+function obdc_simplex_news_sanitize_channel_id( $input ) {
+	if ( ! is_string( $input ) ) {
+		return '';
+	}
+
+	$input = trim( $input );
+	$input = sanitize_text_field( $input );
+	return substr( $input, 0, 64 );
+}
+
+/**
+ * Sanitize fallback text for the LIVE bar.
+ *
+ * @param string $input Raw fallback text.
+ * @return string Sanitized fallback text.
+ */
+function obdc_simplex_news_sanitize_fallback_text( $input ) {
+	$input = sanitize_text_field( $input );
+	return substr( $input, 0, 150 );
 }
 
 // Note: The function obdc_simplex_news_customize_preview_js() was moved to inc/customizer.php

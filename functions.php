@@ -157,6 +157,17 @@ function obdc_simplex_news_scripts() {
 		true
 	);
 
+	$topbar_enabled = 'on' === get_theme_mod( 'obdc_simplex_news_live_status', 'on' );
+	if ( $topbar_enabled ) {
+		wp_enqueue_script(
+			'obdc-simplex-news-topbar',
+			get_template_directory_uri() . '/js/topbar.js',
+			array(),
+			_S_VERSION,
+			true
+		);
+	}
+
         if ( is_front_page() || is_search() ) {
                 wp_enqueue_script(
                         'obdc-simplex-news-front-page',
