@@ -1,1 +1,8 @@
 .snapshots/
+docker/php-dev.ini
+scripts/dev-init.sh
+scripts/dev-reset.sh
+.env.example
+.env
+docker-compose.yml
+LOCAL_DEV.md
