@@ -26,6 +26,7 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 - SEO: OG/Twitter cards (`inc/seo-meta.php`), canonical links, and Schema.org structured data (`inc/structured-data.php`).
 - Accessibility enhancements (`inc/template-functions.php`) and translation-ready strings (`load_theme_textdomain`).
 - Basic Jetpack integration stub (`inc/jetpack.php`).
+- Restricted author archives: subscribers (and any roles filtered via `obdc_simplex_news_restricted_author_roles`) receive 404 on author pages, and only profile editing is allowed in wp-admin.
 
 ## Installation
 
@@ -36,7 +37,7 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 
 ## Initial Setup
 
-1. Open `Appearance > Customize > Configurações do Tema` to configure LIVE ticker, CNPJ, and city.
+1. Open `Appearance > Customize > Configurações do Tema` to configure the LIVE bar (status, CNPJ, city, YouTube API settings, fallback text).
 2. Create menus for every registered location (`main`, `footer-news`, `footer-brazil`, `footer-site`, `footer-opinion`, `footer-sports`, `footer-entertainment`, `footer-social`).
 3. Choose the sticky posts that will fill the hero and highlight slots.
 4. Install a post-views plugin (e.g. Post Views Counter) or call `obdc_simplex_news_increment_post_views()` in `single.php`.
@@ -45,30 +46,30 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 
 ## Editorial Content
 
-- **Hero & highlights:** `template-parts/home/hero.php` and `template-parts/home/highlights.php` consume `obdc_simplex_news_get_front_page_featured_data()` (cached sticky posts with exclusion list).
+- **Hero & highlights:** `template-parts/home/hero.php` and `template-parts/home/highlights.php` consume `obdc_simplex_news_get_front_page_featured_data()` (cached sticky posts with exclusion list) and respect Yoast primary categories when the plugin is active.
 - **Home feed:** `front-page.php` builds the loop excluding featured IDs and exposes pagination data for JS.
 - **Search:** `search.php` mirrors the infinite-scroll structure, consuming the search REST endpoint.
 - **Cards:** `template-parts/content/card.php` defines the standard feed card layout.
 - **Mais lidas:** `template-parts/sidebar/most-read.php` reads `post_views`; change the meta key if needed.
-- **LIVE bar:** `template-parts/topbar.php` renders Customizer values with hooks for external data.
+- **LIVE bar:** `template-parts/topbar.php` renders data from the YouTube integration (or fallback text) with animation.
 - **Authors carousel:** `template-parts/front-page/authors-carousel.php` displays data from `obdc_simplex_news_get_featured_authors()`. Title defaults to “Equipe editorial” and can be filtered via `obdc_simplex_news_authors_heading`.
 
 ## Scripts & REST Endpoints
 
 - `js/front-page.js`: manages “load more”, loading states, `IntersectionObserver`, and fallbacks. Reused on the home feed and search results.
 - `js/author-feed.js`: extends the same behaviour to author archives.
-- `js/navigation.js`, `js/footer-accordion.js`, `js/share.js`, `js/authors-carousel.js`: handle responsive menu/drawer, footer accordion, sharing utilities, and the authors carousel viewport.
+- `js/navigation.js`, `js/footer-accordion.js`, `js/share.js`, `js/authors-carousel.js`, `js/topbar.js`: handle responsive menu/drawer, footer accordion, sharing utilities, authors carousel, and YouTube ticker overflow.
 - `js/script.js`: legacy AJAX load-more prototype (admin-ajax). Not enqueued; keep only as reference or remove during refactors.
-- REST endpoints registered in `functions.php` (all URLs are generated relative to avoid mixed-host issues):
+- REST endpoints registered in `functions.php` (generated as relative URLs):
   - `GET /wp-json/obdc-simplex-news/v1/front-page-feed?page={n}`
-  - `GET /wp-json/obdc-simplex-news/v1/author-feed?author_id={ID}&page={n}` (legacy `author=` still works but new code should prefer `author_id`)
+  - `GET /wp-json/obdc-simplex-news/v1/author-feed?author_id={ID}&page={n}` (legacy `author=` still works for compatibility)
   - `GET /wp-json/obdc-simplex-news/v1/search-feed?search={query}&page={n}`
   Each endpoint returns rendered HTML ready to inject in the DOM (`load more` scripts expect JSON with `html`, `maxPages`, `foundPosts`).
 - Configurable autoload limits: `obdc_simplex_news_front_page_autoload_limit`, `obdc_simplex_news_author_autoload_limit`, `obdc_simplex_news_search_autoload_limit`.
 
 ## Development
 
-- See `LOCAL_DEV.md` for Docker instructions (`docker compose up -d`). Defaults to `http://192.168.15.8:8080`; adjust `WP_HOME`/`WP_SITEURL` for your network.
+- See `LOCAL_DEV.md` for Docker instructions (`docker compose up -d`). Defaults to `http://192.168.15.8:8080`; adjust `WP_HOME`/`WP_SITEURL` if needed.
 - No build step: CSS/JS are enqueued from `style.css` and `js/*.js`.
 - Generate new translations with `wp i18n make-pot` targeting the theme directory and output to `languages/`.
 

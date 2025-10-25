@@ -223,6 +223,82 @@ function obdc_simplex_news_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'obdc_simplex_news_scripts' );
 
+/**
+ * Restrict author archives for selected roles.
+ */
+function obdc_simplex_news_maybe_restrict_author_archive() {
+	if ( ! is_author() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'obdc_simplex_news_is_restricted_author' ) ) {
+		return;
+	}
+
+	$author = get_queried_object();
+	if ( ! obdc_simplex_news_is_restricted_author( $author ) ) {
+		return;
+	}
+
+	global $wp_query;
+	$wp_query->set_404();
+	status_header( 404 );
+	nocache_headers();
+}
+add_action( 'template_redirect', 'obdc_simplex_news_maybe_restrict_author_archive', 1 );
+
+/**
+ * Restrict wp-admin access for restricted roles while keeping profile page accessible.
+ */
+function obdc_simplex_news_maybe_restrict_admin() {
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
+	if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		return;
+	}
+
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return;
+	}
+
+	if ( ! function_exists( 'obdc_simplex_news_is_restricted_author' ) ) {
+		return;
+	}
+
+	$current_user = wp_get_current_user();
+	if ( ! obdc_simplex_news_is_restricted_author( $current_user ) ) {
+		return;
+	}
+
+	global $pagenow;
+
+	/**
+	 * Filter admin pages allowed for restricted users.
+	 *
+	 * @param array  $allowed_pages Array of admin filenames.
+	 * @param string $pagenow       Current admin page filename.
+	 */
+	$allowed_pages = apply_filters(
+		'obdc_simplex_news_restricted_admin_allowed_pages',
+		array( 'profile.php' ),
+		$pagenow
+	);
+
+	if ( in_array( $pagenow, (array) $allowed_pages, true ) ) {
+		return;
+	}
+
+	wp_safe_redirect( home_url() );
+	exit;
+}
+add_action( 'admin_init', 'obdc_simplex_news_maybe_restrict_admin', 1 );
+
 
 /**
  * Implement the Custom Header feature.

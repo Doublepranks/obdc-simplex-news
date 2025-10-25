@@ -71,7 +71,7 @@ img {
 .wrap {
 	max-width: 1160px;
 	margin: 0px auto;
-	padding: 2px 4px;
+	padding: 4px 4px;
 }
 
 /* Top utility bar */
@@ -2063,6 +2063,95 @@ main {
 	.footer-section-toggle .footer-section-indicator::before,
 	.footer-section-toggle .footer-section-indicator::after {
 		transition: none;
+	}
+}
+
+/* 404 page */
+.page-404 {
+	background: var(--card);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	padding: 56px 40px;
+	text-align: center;
+	display: grid;
+	gap: 24px;
+	justify-items: center;
+}
+
+.page-404__emoji {
+	font-size: clamp(3rem, 8vw, 5rem);
+}
+
+.page-404__title {
+	font-family: "Merriweather", Georgia, serif;
+	font-size: clamp(1.6rem, 3vw, 2.4rem);
+	margin: 0;
+}
+
+.page-404__subtitle {
+	color: var(--muted);
+	margin: 0;
+	max-width: 520px;
+}
+
+.page-404__actions {
+	display: flex;
+	gap: 16px;
+}
+
+.page-404__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 24px;
+	border-radius: 999px;
+	background: var(--brand);
+	color: #fff;
+	font-weight: 600;
+	transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.page-404__button:hover,
+.page-404__button:focus-visible {
+	transform: translateY(-1px);
+	box-shadow: 0 8px 18px rgba(17, 24, 39, 0.25);
+}
+
+.page-404__search {
+	width: min(480px, 100%);
+}
+
+.page-404__search form {
+	display: inline-block;
+	gap: 12px;
+	align-items: stretch;
+}
+
+.page-404__search input[type="search"] {
+	flex: 1;
+}
+
+.page-404__search input[type="submit"] {
+	padding: 0 20px;
+}
+
+@media (max-width: 640px) {
+	.page-404 {
+		padding: 40px 24px;
+		gap: 20px;
+	}
+
+	.page-404__actions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.page-404__button {
+		width: 100%;
+	}
+
+	.page-404__search form {
+		flex-direction: column;
 	}
 }
 

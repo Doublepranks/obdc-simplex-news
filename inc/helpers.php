@@ -840,3 +840,42 @@ function obdc_simplex_news_get_youtube_live_banner_data() {
 
 	return $cached;
 }
+
+/**
+ * Whether the given user (or queried author) should have public author pages restricted.
+ *
+ * @param WP_User|WP_User_Query|object|null $user User object.
+ * @return bool True if the author should be restricted.
+ */
+function obdc_simplex_news_is_restricted_author( $user ) {
+	if ( $user instanceof WP_User_Query ) {
+		$user = $user->get_results();
+	}
+
+	if ( is_array( $user ) ) {
+		$user = reset( $user );
+	}
+
+	if ( ! $user instanceof WP_User ) {
+		if ( isset( $user->ID ) ) {
+			$user = get_user_by( 'id', (int) $user->ID );
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Filter the list of roles that should have author pages restricted.
+	 *
+	 * @param array $roles Array of role slugs.
+	 */
+	$restricted_roles = apply_filters(
+		'obdc_simplex_news_restricted_author_roles',
+		array( 'subscriber' )
+	);
+
+	$restricted_roles = array_map( 'sanitize_key', (array) $restricted_roles );
+	$user_roles       = array_map( 'sanitize_key', (array) $user->roles );
+
+	return (bool) array_intersect( $restricted_roles, $user_roles );
+}
