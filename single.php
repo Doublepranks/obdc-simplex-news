@@ -9,6 +9,17 @@ global $post;
 
 get_header(); ?>
 
+<?php
+// Ajusta a altura mínima dos iframes do plugin BDC Safe Embed nas singles
+if (function_exists('add_filter')) {
+    add_filter('bdcse_options', function($opts){
+        // Defina aqui a altura mínima desejada para embeds na single
+        $opts['iframe_min_height'] = 480;
+        return $opts;
+    });
+}
+?>
+
 <main id="main" class="site-main">
 	<div class="wrap single-layout">
 	<?php while ( have_posts() ) :
@@ -50,6 +61,7 @@ get_header(); ?>
 
 					$meta_items       = array();
 					$author_name      = get_the_author();
+					$author_url       = get_author_posts_url( get_the_author_meta( 'ID' ) );
 					$published_parts  = array_filter(
 						array(
 							get_the_time( $date_format ),
@@ -71,8 +83,9 @@ get_header(); ?>
 
 					if ( $author_name ) {
 						$meta_items[] = sprintf(
-							'%s <strong>%s</strong>',
+							'%s <a class="single-hero__author" href="%s" rel="author"><strong>%s</strong></a>',
 							esc_html__( 'Por', 'obdc-simplex-news' ),
+							esc_url( $author_url ),
 							esc_html( $author_name )
 						);
 					}
@@ -243,10 +256,10 @@ get_header(); ?>
 			</section>
 
 			<section class="single-author" aria-label="<?php esc_attr_e( 'Sobre o autor', 'obdc-simplex-news' ); ?>">
-				<div class="single-author__avatar"><?php echo get_avatar( get_the_author_meta( 'ID' ), 80, '', get_the_author() ); ?></div>
+				<div class="single-author__avatar"><?php echo '<a class="single-author__avatar-link" href="' . esc_url( $author_url ) . '" rel="author">' . get_avatar( get_the_author_meta( 'ID' ), 80, '', get_the_author() ) . '</a>'; ?></div>
 				<div>
 					<p class="single-author__label"><?php esc_html_e( 'Autor', 'obdc-simplex-news' ); ?></p>
-					<h3 class="single-author__name"><?php echo esc_html( get_the_author() ); ?></h3>
+					<h3 class="single-author__name"><?php echo '<a class="single-author__name-link" href="' . esc_url( $author_url ) . '" rel="author">' . esc_html( get_the_author() ) . '</a>'; ?></h3>
 					<?php
 					$author_bio = get_the_author_meta( 'description' );
 					if ( $author_bio ) {
