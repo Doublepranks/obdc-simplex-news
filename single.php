@@ -9,17 +9,6 @@ global $post;
 
 get_header(); ?>
 
-<?php
-// Ajusta a altura mínima dos iframes do plugin BDC Safe Embed nas singles
-if (function_exists('add_filter')) {
-    add_filter('bdcse_options', function($opts){
-        // Defina aqui a altura mínima desejada para embeds na single
-        $opts['iframe_min_height'] = 480;
-        return $opts;
-    });
-}
-?>
-
 <main id="main" class="site-main">
 	<div class="wrap single-layout">
 	<?php while ( have_posts() ) :
