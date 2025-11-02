@@ -53,7 +53,7 @@
 
 		var effectiveCardWidth = firstCard.width + columnGap;
 		var cardsPerRow = Math.max( 1, Math.floor( viewportWidth / effectiveCardWidth ) );
-		var rows = 2;
+		var rows = 1;
 		cardsPerPage = Math.max( 1, cardsPerRow * rows );
 		totalPages = Math.max( 1, Math.ceil( cards.length / cardsPerPage ) );
 		currentPage = Math.min( currentPage, totalPages - 1 );
@@ -71,6 +71,25 @@
 		if ( nextButton ) {
 			nextButton.disabled = ! canGoNext;
 			nextButton.setAttribute( 'aria-disabled', canGoNext ? 'false' : 'true' );
+		}
+
+		updateShadows();
+	}
+
+	function updateShadows() {
+		var atStart = currentPage === 0;
+		var atEnd = currentPage >= totalPages - 1;
+		if ( viewport ) {
+			if ( atStart ) {
+				viewport.classList.add( 'is-at-start' );
+			} else {
+				viewport.classList.remove( 'is-at-start' );
+			}
+			if ( atEnd ) {
+				viewport.classList.add( 'is-at-end' );
+			} else {
+				viewport.classList.remove( 'is-at-end' );
+			}
 		}
 	}
 
@@ -97,6 +116,8 @@
 
 		if ( targetCard ) {
 			var offsetLeft = targetCard.offsetLeft;
+			var maxOffset = Math.max( 0, track.scrollWidth - viewport.clientWidth );
+			var translate = Math.min( offsetLeft, maxOffset );
 
 			if ( reduceMotion.matches ) {
 				track.style.transitionDuration = '0ms';
@@ -104,7 +125,7 @@
 				track.style.transitionDuration = animationDuration + 'ms';
 			}
 
-			track.style.transform = 'translateX(' + ( -1 * offsetLeft ) + 'px)';
+			track.style.transform = 'translateX(' + ( -1 * translate ) + 'px)';
 		}
 
 		updateButtons();
@@ -136,6 +157,7 @@
 		updateMetrics();
 		updateButtons();
 		goToPage( currentPage );
+		updateShadows();
 
 		if ( prevButton ) {
 			prevButton.removeAttribute( 'hidden' );
@@ -171,6 +193,7 @@
 
 		updateButtons();
 		emitChangeEvent();
+		updateShadows();
 	}
 
 	function handleBreakpointChange( event ) {

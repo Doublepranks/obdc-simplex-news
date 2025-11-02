@@ -22,8 +22,10 @@ if ( is_front_page() ) {
 
 // Get most viewed posts (requires plugin like 'Post Views Counter' or custom table)
 // Using meta_key 'post_views' as specified in ObDC documentation
+$most_count = (int) apply_filters( 'obdc_simplex_news_most_read_count', 10 );
+
 $most_query_args = array(
-        'posts_per_page' => 6,
+        'posts_per_page' => $most_count,
         'meta_key'       => 'post_views',
         'orderby'        => 'meta_value_num',
         'order'          => 'DESC',
@@ -37,14 +39,11 @@ if ( ! empty( $excluded_featured_ids ) ) {
 $most = new WP_Query( $most_query_args );
 
 if ( $most->have_posts() ) : ?>
-	<div class="box">
+	<div class="box most-read">
 		<h4>Mais lidas</h4>
 		<div class="top-list">
 			<?php while ( $most->have_posts() ) : $most->the_post(); ?>
 				<a class="top-item" href="<?php the_permalink(); ?>" aria-label="Leia: <?php the_title_attribute(); ?>">
-					<div class="top-thumb">
-						<?php the_post_thumbnail( 'thumb72', array( 'alt' => esc_attr( get_the_title() ) ) ); ?>
-					</div>
 					<div class="content">
 						<div class="kicker">
 							<?php
@@ -67,7 +66,7 @@ if ( $most->have_posts() ) : ?>
 else :
 	// Fallback if no posts found
 	?>
-	<div class="box">
+	<div class="box most-read">
 		<h4>Mais lidas</h4>
 		<p class="no-posts">Nenhuma postagem encontrada.</p>
 	</div>
