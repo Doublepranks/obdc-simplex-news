@@ -78,7 +78,7 @@ img {
 .topbar {
 	background: var(--yellow);
 	color: #111;
-	padding: 8px 0;
+	padding: 0px 0px;
 	border-bottom: 1px solid #e5b43a;
 	color-scheme: light;
 }
@@ -150,6 +150,7 @@ img {
 }
 
 .topbar__fallback-text {
+	font-size: 14px;
 	display: block;
 	font-weight: 600;
 }
