@@ -73,6 +73,24 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 - No build step: CSS/JS are enqueued from `style.css` and `js/*.js`.
 - Generate new translations with `wp i18n make-pot` targeting the theme directory and output to `languages/`.
 
+### Single page newsletter CTA (optional)
+
+The single template includes a newsletter CTA block that is disabled by default. To re‑enable it:
+
+- File: `single.php`
+- Look for the section starting with `<section class="single-cta" ...>` — it is wrapped by a PHP conditional used to disable rendering:
+
+```php
+<?php if ( false ) : // CTA disabled intentionally; set to true or remove to enable ?>
+<section class="single-cta" aria-label="<?php esc_attr_e( 'Assine nossa newsletter', 'obdc-simplex-news' ); ?>">
+    ...
+</section>
+<?php endif; ?>
+```
+
+- To enable the CTA, change `false` to `true` or remove the surrounding `if/endif` guard.
+- The button currently points to `home_url( '/newsletter' )`; adjust this URL if your newsletter lives elsewhere.
+
 ## Folder Structure (summary)
 
 ```

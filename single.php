@@ -236,6 +236,7 @@ get_header(); ?>
 				<?php the_content(); ?>
 			</div>
 
+			<?php if ( false ) : // CTA desativado intencionalmente; reative alterando para true ou removendo este bloco ?>
 			<section class="single-cta" aria-label="<?php esc_attr_e( 'Assine nossa newsletter', 'obdc-simplex-news' ); ?>">
 				<div>
 					<h2 class="single-cta__title"><?php esc_html_e( 'Receba alertas das principais notícias', 'obdc-simplex-news' ); ?></h2>
@@ -243,6 +244,7 @@ get_header(); ?>
 				</div>
 				<a class="single-cta__button" href="<?php echo esc_url( home_url( '/newsletter' ) ); ?>"><?php esc_html_e( 'Assinar agora', 'obdc-simplex-news' ); ?></a>
 			</section>
+			<?php endif; ?>
 
 			<section class="single-author" aria-label="<?php esc_attr_e( 'Sobre o autor', 'obdc-simplex-news' ); ?>">
 				<div class="single-author__avatar"><?php echo '<a class="single-author__avatar-link" href="' . esc_url( $author_url ) . '" rel="author">' . get_avatar( get_the_author_meta( 'ID' ), 80, '', get_the_author() ) . '</a>'; ?></div>
@@ -332,6 +334,11 @@ get_header(); ?>
 		if ( comments_open() || get_comments_number() ) :
 			comments_template();
 		endif;
+		?>
+
+		<?php
+		// Inline Most Read list below comments, full-width inside single layout.
+		get_template_part( 'template-parts/single/most-read-inline' );
 		?>
 	<?php endwhile; ?>
 	</div><!-- .wrap -->
