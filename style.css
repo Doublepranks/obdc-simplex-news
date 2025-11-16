@@ -835,14 +835,22 @@ main {
 
 /* Feed + Sidebar */
 .content {
-	display: grid;
-	grid-template-columns: 2fr 1fr;
+	display: flex;
+	align-items: flex-start;
 	gap: 24px;
 }
 
 .feed {
 	display: grid;
 	gap: 14px;
+}
+
+.content .feed {
+	flex: 2 1 0;
+}
+
+.content .sidebar {
+	flex: 1 1 0;
 }
 
 .card {
@@ -1057,6 +1065,13 @@ main {
 	box-shadow: 0 8px 18px rgba(17,24,39,.12);
 	cursor: pointer;
 	transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+}
+
+/* Ensure loadmore behaves well inside grid feeds */
+.feed .loadmore {
+	justify-self: center;
+	align-self: flex-start;
+	margin-top: 8px;
 }
 
 .loadmore:hover,
@@ -2192,7 +2207,7 @@ main {
 		grid-template-columns: 1fr;
 	}
 	.content {
-		grid-template-columns: 1fr;
+		flex-direction: column;
 	}
 	.card {
 		grid-template-columns: 220px 1fr;
