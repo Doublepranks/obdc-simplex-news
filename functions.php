@@ -67,6 +67,7 @@ function obdc_simplex_news_setup() {
 	register_nav_menus(
 		array(
 			'main'                 => __( 'Menu Principal', 'obdc-simplex-news' ),
+			'drawer'               => __( 'Menu móvel (drawer)', 'obdc-simplex-news' ),
 			'footer-news'          => __( 'Rodape: Noticias', 'obdc-simplex-news' ),
 			'footer-brazil'        => __( 'Rodape: Brasil', 'obdc-simplex-news' ),
 			'footer-site'          => __( 'Rodape: Site', 'obdc-simplex-news' ),
@@ -148,14 +149,25 @@ function obdc_simplex_news_scripts() {
 	// Load font-display swap (redundant but ensures it)
 	wp_add_inline_style( 'obdc-simplex-news-style', '.font-inter { font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif; } .font-merriweather { font-family: "Merriweather", Georgia, serif; }' );
 
-	// Global navigation interactions
-	wp_enqueue_script(
-		'obdc-simplex-news-navigation',
-		get_template_directory_uri() . '/js/navigation.js',
-		array(),
-		_S_VERSION,
-		true
-	);
+		// Global navigation interactions
+		wp_enqueue_script(
+			'obdc-simplex-news-navigation',
+			get_template_directory_uri() . '/js/navigation.js',
+			array(),
+			_S_VERSION,
+			true
+		);
+
+		// Main menu enhancements (dropdown accessibility)
+		if ( has_nav_menu( 'main' ) ) {
+			wp_enqueue_script(
+				'obdc-simplex-news-main-menu',
+				get_template_directory_uri() . '/js/main-menu.js',
+				array( 'jquery' ),
+				_S_VERSION,
+				true
+			);
+		}
 
 	$topbar_enabled = 'on' === get_theme_mod( 'obdc_simplex_news_live_status', 'on' );
 	if ( $topbar_enabled ) {
@@ -193,6 +205,16 @@ function obdc_simplex_news_scripts() {
                         'obdc-simplex-news-share',
                         get_template_directory_uri() . '/js/share.js',
                         array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
+        if ( is_page_template( 'categories.php' ) ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-categories-index',
+                        get_template_directory_uri() . '/js/categories-index.js',
+                        array( 'jquery' ),
                         _S_VERSION,
                         true
                 );

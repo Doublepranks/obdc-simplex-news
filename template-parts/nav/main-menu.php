@@ -14,7 +14,7 @@ if ( has_nav_menu( 'main' ) ) {
 			'menu_class'     => 'main-menu',
 			'container'      => false,
 			'echo'           => false,
-			'depth'          => 1,
+			'depth'          => 2,
 		)
 	);
 } elseif ( current_user_can( 'edit_theme_options' ) ) {

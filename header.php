@@ -2,9 +2,12 @@
 /**
  * The header for our theme.
  *
- * This is the template that displays all of the <head> section and everything up until <div id="content">
+ * This is the template that displays all of the <head> section
+ * and everything up until <div id="content">.
  *
  * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ *
+ * @package ObDC-simplex-news
  */
 
 ?><!DOCTYPE html>
@@ -32,17 +35,19 @@
 				<span></span>
 				<span></span>
 			</span>
-			<span class="screen-reader-text">Menu</span>
+			<span class="screen-reader-text"><?php esc_html_e( 'Menu', 'obdc-simplex-news' ); ?></span>
 		</button>
-		
+
 		<?php if ( function_exists( 'the_custom_logo' ) && has_custom_logo() ) : ?>
 			<div class="logo" itemprop="headline">
 				<?php the_custom_logo(); ?>
 			</div>
 		<?php else : ?>
-			<h1 class="logo" itemprop="headline"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">O Brasil de Cima</a></h1>
+			<h1 class="logo" itemprop="headline">
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">O Brasil de Cima</a>
+			</h1>
 		<?php endif; ?>
-		
+
 		<div class="masthead-search">
 			<div class="masthead-search__form">
 				<?php
@@ -65,21 +70,46 @@
 		</button>
 		<nav class="site-drawer__nav" aria-labelledby="site-drawer-title">
 			<?php get_template_part( 'template-parts/header/auth', null, array( 'context' => 'drawer' ) ); ?>
-			<p id="site-drawer-title" class="site-drawer__title">Menu</p>
-			<ul class="site-drawer__list">
-				<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>">Início</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/categorias/' ) ); ?>">Categorias</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/estados/' ) ); ?>">Estados</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/mais-lidas/' ) ); ?>">Mais Lidas</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/sobre-nos/' ) ); ?>">Sobre Nós</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/anuncie-conosco/' ) ); ?>">Anuncie conosco</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/contato/' ) ); ?>">Contato</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/politica-de-privacidade/' ) ); ?>">Política de Privacidade</a></li>
-				<li><a href="<?php echo esc_url( home_url( '/termos-de-servico/' ) ); ?>">Termos de Serviço</a></li>
-			</ul>
+
+			<p id="site-drawer-title" class="site-drawer__title">
+				<?php esc_html_e( 'Menu', 'obdc-simplex-news' ); ?>
+			</p>
+
+			<?php
+			$drawer_menu_location = '';
+
+			if ( has_nav_menu( 'drawer' ) ) {
+				$drawer_menu_location = 'drawer';
+			} elseif ( has_nav_menu( 'main' ) ) {
+				$drawer_menu_location = 'main';
+			}
+
+			if ( $drawer_menu_location ) {
+				wp_nav_menu(
+					array(
+						'theme_location' => $drawer_menu_location,
+						'menu_class'     => 'site-drawer__list',
+						'container'      => '',
+						'depth'          => 2,
+					)
+				);
+			} elseif ( current_user_can( 'edit_theme_options' ) ) {
+				$manage_url = admin_url( 'nav-menus.php?action=locations' );
+				?>
+				<ul class="site-drawer__list site-drawer__list--fallback">
+					<li>
+						<a href="<?php echo esc_url( $manage_url ); ?>">
+							<?php esc_html_e( 'Configure o menu móvel', 'obdc-simplex-news' ); ?>
+						</a>
+					</li>
+				</ul>
+				<?php
+			}
+			?>
+
 			<div class="site-drawer__social">
-				<p class="site-drawer__subtitle">Nos siga nas redes sociais</p>
-				<ul class="site-drawer__social-list" aria-label="Redes sociais">
+				<p class="site-drawer__subtitle"><?php esc_html_e( 'Nos siga nas redes sociais', 'obdc-simplex-news' ); ?></p>
+				<ul class="site-drawer__social-list" aria-label="<?php esc_attr_e( 'Redes sociais', 'obdc-simplex-news' ); ?>">
 					<li>
 						<a href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
 							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm6.25-.88a1.12 1.12 0 1 1-2.24 0 1.12 1.12 0 0 1 2.24 0z"/></svg>
@@ -109,3 +139,4 @@
 
 <!-- Main navigation -->
 <?php get_template_part( 'template-parts/nav/main-menu' ); ?>
+

@@ -1,12 +1,12 @@
 // ObDC-simplex-news JavaScript
 
 jQuery(document).ready(function($) {
-	// Load more posts via AJAX
+	// Load more posts via AJAX (legacy prototype, not currently enqueued).
 	$('.loadmore').on('click', function(e) {
 		e.preventDefault();
 		var $button = $(this);
 		$button.text('Carregando...');
-		
+
 		$.ajax({
 			url: ajax_object.ajax_url,
 			type: 'POST',

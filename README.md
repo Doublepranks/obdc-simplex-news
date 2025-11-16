@@ -17,6 +17,7 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 
 - Responsive-first layout with hero + cards using Inter/Merriweather via Google Fonts (`wp_resource_hints` + `font-display: swap`).
 - LIVE ticker configurable in the Customizer (status, text, CNPJ, city).
+- Persistent navigation: desktop main menu (`main`) with optional one-level dropdown submenus, and mobile drawer menu (`drawer`) fully driven by WordPress menu locations (drawer falls back to `main` if not set).
 - Editorial panel powered by sticky posts with automatic fallback to recent posts.
 - Infinite feed driven by REST (`js/front-page.js`) with `IntersectionObserver` and manual fallback.
 - Author archive with progressive loading (`js/author-feed.js`) via the dedicated REST endpoint.
@@ -38,7 +39,7 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 ## Initial Setup
 
 1. Open `Appearance > Customize > Configurações do Tema` to configure the LIVE bar (status, CNPJ, city, YouTube API settings, fallback text).
-2. Create menus for every registered location (`main`, `footer-news`, `footer-brazil`, `footer-site`, `footer-opinion`, `footer-sports`, `footer-entertainment`, `footer-social`).
+	2. Create menus for every registered location (`main`, `drawer`, `footer-news`, `footer-brazil`, `footer-site`, `footer-opinion`, `footer-sports`, `footer-entertainment`, `footer-social`). The `drawer` location feeds the mobile site-drawer; if left empty it falls back to `main`.
 3. Choose the sticky posts that will fill the hero and highlight slots.
 4. Install a post-views plugin (e.g. Post Views Counter) or call `obdc_simplex_news_increment_post_views()` in `single.php`.
 5. Replace `screenshot.png` with a 1200x900 preview for wp-admin.
@@ -59,6 +60,8 @@ The front page is organised in five blocks: persistent LIVE bar, hero (sticky po
 - `js/front-page.js`: manages “load more”, loading states, `IntersectionObserver`, and fallbacks. Reused on the home feed and search results.
 - `js/author-feed.js`: extends the same behaviour to author archives.
 - `js/navigation.js`, `js/footer-accordion.js`, `js/share.js`, `js/authors-carousel.js`, `js/topbar.js`: handle responsive menu/drawer, footer accordion, sharing utilities, authors carousel, and YouTube ticker overflow.
+- `js/main-menu.js`: progressive enhancement for the main menu dropdowns (adds `aria-haspopup`/`aria-expanded` and improves focus handling on items with submenus).
+- `js/categories-index.js`: client-side filter for the Categories Index template, hiding/revealing category cards as the user types in the search field.
 - `js/script.js`: legacy AJAX load-more prototype (admin-ajax). Not enqueued; keep only as reference or remove during refactors.
 - REST endpoints registered in `functions.php` (generated as relative URLs):
   - `GET /wp-json/obdc-simplex-news/v1/front-page-feed?page={n}`
