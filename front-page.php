@@ -80,9 +80,16 @@ $auto_load_limit  = max( 0, absint( $auto_load_limit ) );
                                         $max_pages    = max( 1, (int) $latest_posts->max_num_pages );
 
                                         if ( $latest_posts->have_posts() ) :
+                                                $obdc_post_counter = 0;
                                                 while ( $latest_posts->have_posts() ) :
                                                         $latest_posts->the_post();
+                                                        $obdc_post_counter++;
                                                         get_template_part( 'template-parts/content/card' );
+
+                                                        // AD INJECTION: After every 3rd post
+                                                        if ( 0 === $obdc_post_counter % 4 ) {
+                                                                get_template_part( 'template-parts/ads/in-feed' );
+                                                        }
                                                 endwhile;
                                         endif;
 

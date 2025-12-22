@@ -115,6 +115,18 @@ function obdc_simplex_news_widgets_init() {
 			'after_title'   => '</h2>',
 		)
 	);
+
+	register_sidebar(
+		array(
+			'name'          => __( 'In-Feed Ad', 'obdc-simplex-news' ),
+			'id'            => 'in_feed',
+			'description'   => __( 'Ad slot displayed interspersed within the post feed.', 'obdc-simplex-news' ),
+			'before_widget' => '<div class="ad ad--in-feed">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h2 class="widget-title screen-reader-text">',
+			'after_title'   => '</h2>',
+		)
+	);
 }
 add_action( 'widgets_init', 'obdc_simplex_news_widgets_init' );
 
@@ -432,9 +444,16 @@ function obdc_simplex_news_front_page_feed_callback( WP_REST_Request $request ) 
         ob_start();
 
         if ( $query->have_posts() ) {
+                $obdc_post_counter = 0;
                 while ( $query->have_posts() ) {
                         $query->the_post();
+                        $obdc_post_counter++;
                         get_template_part( 'template-parts/content/card' );
+
+                        // AD INJECTION: After every 3rd post
+                        if ( 0 === $obdc_post_counter % 3 ) {
+                                get_template_part( 'template-parts/ads/in-feed' );
+                        }
                 }
         }
 

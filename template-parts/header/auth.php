@@ -27,7 +27,7 @@ if ( 'drawer' === $context ) :
                 <?php if ( ! empty( $avatar_markup ) ) : ?>
                     <?php echo $avatar_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php endif; ?>
-                <span class="drawer-auth__name"><?php echo esc_html( $display_name ); ?></span>
+                <a class="drawer-auth__name" href="<?php echo esc_url( $profile_url ); ?>"><?php echo esc_html( $display_name ); ?></a>
                 <span class="drawer-auth__divider" aria-hidden="true"></span>
                 <a class="drawer-auth__action drawer-auth__edit" href="<?php echo esc_url( $edit_profile_url ); ?>"><?php esc_html_e( 'Editar', 'obdc-simplex-news' ); ?></a>
                 <span class="drawer-auth__divider" aria-hidden="true"></span>
