@@ -124,11 +124,6 @@ get_header(); ?>
 								'label' => __( 'Compartilhar no X', 'obdc-simplex-news' ),
 								'icon'  => obdc_simplex_news_get_social_icon_svg( 'x' ),
 							),
-							'instagram' => array(
-								'label' => __( 'Copiar link para usar no Instagram (desktop) ou abrir o aplicativo (mobile)', 'obdc-simplex-news' ),
-								'icon'  => obdc_simplex_news_get_social_icon_svg( 'instagram' ),
-								'class' => 'single-share-inline__button single-share-inline__button--instagram',
-							),
 							'facebook'  => array(
 								'label' => __( 'Compartilhar no Facebook', 'obdc-simplex-news' ),
 								'icon'  => obdc_simplex_news_get_social_icon_svg( 'facebook' ),
