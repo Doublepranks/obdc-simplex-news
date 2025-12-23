@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Ticker Redesign Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yellow: #f6c343;
+            --brand: #111827;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --accent: #ef4444;
+            --bg: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .label {
+            font-weight: bold;
+            color: var(--muted);
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Container simulating the site header width/context */
+        .preview-container {
+            background: #fff;
+            width: 100%;
+            max-width: 1160px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .preview-container--mobile {
+            max-width: 375px;
+            border-radius: 20px;
+            border: 8px solid #111;
+        }
+
+        /* --- NEW DESIGN CSS --- */
+        .new-topbar {
+            background: var(--yellow);
+            color: var(--brand);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 14px;
+        }
+
+        .new-topbar__inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .live-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .live-content {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .watch-btn {
+            background: var(--brand);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        
+        .watch-btn:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Mobile Adjustments */
+        .preview-container--mobile .new-topbar {
+            padding: 8px 12px;
+        }
+        
+        .preview-container--mobile .new-topbar__inner {
+            gap: 8px;
+        }
+        
+        .preview-container--mobile .live-badge {
+            padding: 4px 6px;
+        }
+        
+        .preview-container--mobile .badge-text {
+            display: none; /* Hide 'AO VIVO' text on mobile, keep dot */
+        }
+        
+        .preview-container--mobile .live-dot {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+        }
+        
+        .preview-container--mobile .live-content {
+            font-size: 13px;
+        }
+
+        .preview-container--mobile .watch-btn {
+            padding: 4px 8px;
+        }
+         .preview-container--mobile .watch-btn span {
+            display: none; /* Hide 'Assistir' text, keep icon */
+        }
+        .preview-container--mobile .watch-btn::after {
+            content: "➔";
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div>
+        <span class="label">Desktop Design</span>
+        <div class="preview-container">
+            <div class="new-topbar">
+                <div class="new-topbar__inner">
+                    <div class="live-badge">
+                        <span class="live-dot"></span>
+                        <span class="badge-text">AO VIVO</span>
+                    </div>
+                    <div class="live-content">
+                        O Grande Debate: Política Econômica e o Futuro do Brasil — Assista Agora
+                    </div>
+                    <a href="#" class="watch-btn">
+                        <span>Assistir</span> ➔
+                    </a>
+                </div>
+            </div>
+            <div style="height: 100px; background: white; display:flex; align-items:center; justify-content:center; color:#ddd;">
+                (Site Header Placeholder)
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <span class="label">Mobile Design</span>
+        <div class="preview-container preview-container--mobile">
+            <div class="new-topbar">
+                <div class="new-topbar__inner">
+                    <div class="live-badge" title="AO VIVO">
+                        <span class="live-dot"></span>
+                        <span class="badge-text">AO VIVO</span>
+                    </div>
+                    <div class="live-content">
+                        O Grande Debate: Política Econômica...
+                    </div>
+                    <a href="#" class="watch-btn" aria-label="Assistir">
+                        <span>Assistir</span>
+                    </a>
+                </div>
+            </div>
+            <div style="height: 300px; background: white; display:flex; align-items:center; justify-content:center; color:#ddd;">
+                (Mobile Content)
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

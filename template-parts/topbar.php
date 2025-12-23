@@ -21,37 +21,34 @@ if ( 'on' === $live_status ) :
 	$has_live           = ! empty( $youtube_banner['live'] );
 	$fallback_text      = ! empty( $youtube_banner['fallback_text'] )
 		? $youtube_banner['fallback_text']
-		: __( 'Um Brasil que pensa, comeca de cima.', 'obdc-simplex-news' );
+		: __( 'Um Brasil que pensa, começa de cima.', 'obdc-simplex-news' );
 	?>
 	<div class="topbar" data-topbar>
 		<div class="wrap">
-			<?php if ( $is_youtube_enabled ) : ?>
-				<?php if ( $has_live && ! empty( $youtube_banner['video_url'] ) ) : ?>
-					<a
-						class="topbar__ticker topbar__ticker--live"
-						href="<?php echo esc_url( $youtube_banner['video_url'] ); ?>"
-						target="_blank"
-						rel="noopener noreferrer"
-						aria-live="polite"
-					>
-						<span class="topbar__live-indicator">
-							<span class="topbar__live-dot" aria-hidden="true"></span>
-							<span class="topbar__live-label"><?php esc_html_e( 'AO VIVO', 'obdc-simplex-news' ); ?></span>
-						</span>
-						<span class="topbar__live-title" data-live-title>
-							<?php echo esc_html( $youtube_banner['video_title'] ); ?>
-						</span>
-					</a>
-				<?php else : ?>
-					<div class="topbar__ticker topbar__ticker--fallback" aria-live="polite">
-						<span class="topbar__fallback-text"><?php echo esc_html( $fallback_text ); ?></span>
+			<div class="topbar__inner">
+				<?php if ( $is_youtube_enabled && $has_live && ! empty( $youtube_banner['video_url'] ) ) : ?>
+					
+					<div class="live-badge" title="<?php esc_attr_e( 'AO VIVO', 'obdc-simplex-news' ); ?>">
+						<span class="live-dot"></span>
+						<span><?php esc_html_e( 'AO VIVO', 'obdc-simplex-news' ); ?></span>
 					</div>
+
+					<div class="live-content">
+						<?php echo esc_html( $youtube_banner['video_title'] ); ?>
+					</div>
+
+					<a href="<?php echo esc_url( $youtube_banner['video_url'] ); ?>" class="watch-btn" target="_blank" rel="noopener noreferrer">
+						<span><?php esc_html_e( 'Assistir', 'obdc-simplex-news' ); ?></span>
+					</a>
+
+				<?php else : ?>
+					
+					<div class="live-content" style="text-align: center; width: 100%;">
+						<?php echo esc_html( $fallback_text ); ?>
+					</div>
+
 				<?php endif; ?>
-			<?php else : ?>
-				<div class="topbar__ticker topbar__ticker--fallback" aria-live="polite">
-					<span class="topbar__fallback-text"><?php echo esc_html( $fallback_text ); ?></span>
-				</div>
-			<?php endif; ?>
+			</div>
 		</div>
 	</div>
 <?php endif; ?>

@@ -202,6 +202,16 @@ function obdc_simplex_news_scripts() {
                 );
         }
 
+        if ( is_archive() && ! is_author() ) {
+                wp_enqueue_script(
+                        'obdc-simplex-news-archive-feed',
+                        get_template_directory_uri() . '/js/front-page.js',
+                        array(),
+                        _S_VERSION,
+                        true
+                );
+        }
+
         if ( is_author() ) {
                 wp_enqueue_script(
                         'obdc-simplex-news-author-feed',
@@ -526,6 +536,43 @@ function obdc_simplex_news_register_search_feed_route() {
 add_action( 'rest_api_init', 'obdc_simplex_news_register_search_feed_route' );
 
 /**
+ * Register REST endpoint for loading additional archive posts.
+ */
+function obdc_simplex_news_register_archive_feed_route() {
+	register_rest_route(
+		'obdc-simplex-news/v1',
+		'/archive-feed',
+		array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => 'obdc_simplex_news_archive_feed_callback',
+			'permission_callback' => '__return_true',
+			'args'                => array(
+				'page'     => array(
+					'default'           => 1,
+					'sanitize_callback' => 'absint',
+				),
+				'cat'      => array(
+					'sanitize_callback' => 'absint',
+				),
+				'tag_id'   => array(
+					'sanitize_callback' => 'absint',
+				),
+				'year'     => array(
+					'sanitize_callback' => 'absint',
+				),
+				'monthnum' => array(
+					'sanitize_callback' => 'absint',
+				),
+				'day'      => array(
+					'sanitize_callback' => 'absint',
+				),
+			),
+		)
+	);
+}
+add_action( 'rest_api_init', 'obdc_simplex_news_register_archive_feed_route' );
+
+/**
  * Sanitize search term for the REST search feed.
  *
  * @param mixed $value Raw search term.
@@ -536,6 +583,79 @@ function obdc_simplex_news_sanitize_search_term( $value ) {
 	$value = wp_unslash( $value );
 	$value = sanitize_text_field( $value );
 	return $value;
+}
+
+/**
+ * Handle REST requests for the archive feed pagination.
+ *
+ * @param WP_REST_Request $request REST request object.
+ * @return WP_REST_Response|WP_Error
+ */
+function obdc_simplex_news_archive_feed_callback( WP_REST_Request $request ) {
+	$page = max( 1, absint( $request->get_param( 'page' ) ) );
+
+	$args = array(
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => (int) get_option( 'posts_per_page' ),
+		'paged'          => $page,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'no_found_rows'  => false,
+	);
+
+	// Add category filter
+	$cat = $request->get_param( 'cat' );
+	if ( $cat ) {
+		$args['cat'] = absint( $cat );
+	}
+
+	// Add tag filter
+	$tag_id = $request->get_param( 'tag_id' );
+	if ( $tag_id ) {
+		$args['tag_id'] = absint( $tag_id );
+	}
+
+	// Add date filters
+	$year = $request->get_param( 'year' );
+	if ( $year ) {
+		$args['year'] = absint( $year );
+	}
+
+	$monthnum = $request->get_param( 'monthnum' );
+	if ( $monthnum ) {
+		$args['monthnum'] = absint( $monthnum );
+	}
+
+	$day = $request->get_param( 'day' );
+	if ( $day ) {
+		$args['day'] = absint( $day );
+	}
+
+	$query = new WP_Query( $args );
+
+	ob_start();
+
+	if ( $query->have_posts() ) {
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			get_template_part( 'template-parts/content/card' );
+		}
+	}
+
+	$html        = ob_get_clean();
+	$max_pages   = (int) $query->max_num_pages;
+	$found_posts = (int) $query->found_posts;
+
+	wp_reset_postdata();
+
+	return rest_ensure_response(
+		array(
+			'html'       => $html,
+			'maxPages'   => $max_pages,
+			'foundPosts' => $found_posts,
+		)
+	);
 }
 
 /**
