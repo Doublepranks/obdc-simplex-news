@@ -5,9 +5,14 @@
  * @package ObDC-simplex-news
  */
 
+// Subscriber: no ads.
+if (function_exists('obdc_simplex_news_should_hide_ads') && obdc_simplex_news_should_hide_ads()) {
+	return;
+}
+
 // Display widget area for in-feed ad
-if ( is_active_sidebar( 'in_feed' ) ) {
-	dynamic_sidebar( 'in_feed' );
+if (is_active_sidebar('in_feed')) {
+	dynamic_sidebar('in_feed');
 } else {
 	// Fallback if no widget is set
 	?>
