@@ -5,9 +5,14 @@
  * @package ObDC-simplex-news
  */
 
+// Subscriber: no ads.
+if (function_exists('obdc_simplex_news_should_hide_ads') && obdc_simplex_news_should_hide_ads()) {
+	return;
+}
+
 // Display widget area for top home ad
-if ( is_active_sidebar( 'top_home' ) ) {
-	dynamic_sidebar( 'top_home' );
+if (is_active_sidebar('top_home')) {
+	dynamic_sidebar('top_home');
 } else {
 	// Fallback if no widget is set
 	?>
