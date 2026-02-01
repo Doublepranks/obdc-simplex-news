@@ -41,21 +41,15 @@
 				<span class="screen-reader-text"><?php esc_html_e('Menu', 'obdc-simplex-news'); ?></span>
 			</button>
 
-			<!-- Inserção de Logo -->
 			<?php if (function_exists('the_custom_logo') && has_custom_logo()): ?>
 				<div class="logo" itemprop="headline">
 					<?php the_custom_logo(); ?>
 				</div>
 			<?php else: ?>
-				<div class="logo" itemprop="headline">
-					<a href="<?php echo esc_url(home_url('/')); ?>" rel="home">
-						<img src="https://obrasildecima.com.br/wp-content/uploads/2025/05/Nova-Logo-Preta-Texto-scaled.png"
-							id="logo-obdc" alt="O Brasil de Cima" loading="lazy">
-					</a>
-				</div>
+				<h1 class="logo" itemprop="headline">
+					<a href="<?php echo esc_url(home_url('/')); ?>" rel="home">O Brasil de Cima</a>
+				</h1>
 			<?php endif; ?>
-
-			<!-- Fim das alterações -->
 
 			<div class="masthead-search">
 				<div class="masthead-search__form">
@@ -119,8 +113,7 @@
 
 				<div class="site-drawer__social">
 					<p class="site-drawer__subtitle">
-						<?php esc_html_e('Nos siga nas redes sociais', 'obdc-simplex-news'); ?>
-					</p>
+						<?php esc_html_e('Nos siga nas redes sociais', 'obdc-simplex-news'); ?></p>
 					<ul class="site-drawer__social-list"
 						aria-label="<?php esc_attr_e('Redes sociais', 'obdc-simplex-news'); ?>">
 						<li>

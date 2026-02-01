@@ -411,12 +411,6 @@ header.masthead {
 	margin: 0;
 }
 
-/* Estilo da logo */
-#logo-obdc {
-	height: 40px;
-	width: auto;
-}
-
 .masthead-search {
 	margin-left: auto;
 	display: flex;
