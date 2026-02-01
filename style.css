@@ -419,23 +419,6 @@ header.masthead {
 	padding-right: 28px;
 }
 
-/* Estilo do campo de busca*/
-.masthead-search__form {
-	border-radius: 10px !important;
-	outline: 1px solid #000 !important;
-	padding: 3px !important;
-	width: 209px !important;
-}
-
-.proclose svg polygon {
-	fill: #fff !important;
-}
-
-.proclose svg {
-	background-color: FFCA00 !important;
-}
-
-/* Fim das alterações*/
 
 .auth {
 	display: flex;
