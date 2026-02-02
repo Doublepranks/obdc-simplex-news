@@ -824,3 +824,8 @@ function obdc_simplex_news_author_feed_callback(WP_REST_Request $request)
 		)
 	);
 }
+
+/**
+ * Custom Login/Register URLs.
+ */
+require get_template_directory() . '/inc/auth.php';
