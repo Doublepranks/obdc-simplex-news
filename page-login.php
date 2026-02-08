@@ -47,7 +47,7 @@ if ('POST' === $_SERVER['REQUEST_METHOD'] && isset($_POST['obdc_login_nonce'])) 
 	}
 }
 
-get_header();
+//get_header();
 ?>
 
 <main id="main" class="site-main" role="main">
@@ -253,4 +253,4 @@ get_header();
 </style>
 
 <?php
-get_footer();
+//get_footer();
