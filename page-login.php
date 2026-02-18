@@ -80,11 +80,20 @@ if ('POST' === $_SERVER['REQUEST_METHOD'] && isset($_POST['obdc_login_nonce'])) 
 						<input type="password" name="pwd" id="user_pass" required>
 					</div>
 
+					<!-- 2FA Field (Hidden by default) -->
+					<div class="form-group form-group--2fa" id="2fa-container" style="display: none;">
+						<label for="2fa_code"><?php esc_html_e('Código 2FA (Wordfence)', 'obdc-simplex-news'); ?></label>
+						<input type="text" name="wfls-token" id="2fa_code" autocomplete="one-time-code" placeholder="123 456">
+					</div>
+					
 					<div class="form-group form-group--checkbox">
 						<label for="rememberme">
 							<input name="rememberme" type="checkbox" id="rememberme" value="forever">
 							<?php esc_html_e('Lembrar de mim', 'obdc-simplex-news'); ?>
 						</label>
+						<a href="#" id="toggle-2fa" style="font-size: 0.85rem; margin-left: auto; text-decoration: none; color: var(--brand);">
+							<?php esc_html_e('Tenho um código 2FA', 'obdc-simplex-news'); ?>
+						</a>
 					</div>
 
 					<?php wp_nonce_field('obdc_login_action', 'obdc_login_nonce'); ?>
@@ -94,6 +103,18 @@ if ('POST' === $_SERVER['REQUEST_METHOD'] && isset($_POST['obdc_login_nonce'])) 
 							class="btn btn--primary"><?php esc_html_e('Entrar', 'obdc-simplex-news'); ?></button>
 					</div>
 				</form>
+				
+				<script>
+				document.getElementById('toggle-2fa').addEventListener('click', function(e) {
+					e.preventDefault();
+					var container = document.getElementById('2fa-container');
+					if (container.style.display === 'none') {
+						container.style.display = 'block';
+						document.getElementById('2fa_code').focus();
+						this.style.display = 'none'; // Hide the toggle link after showing
+					}
+				});
+				</script>
 
 				<div class="auth-footer">
 					<p><a
