@@ -2901,3 +2901,27 @@ main {
 	background-color: rgba(0, 0, 0, 0.05);
 	text-decoration: none;
 }
+
+/* -------------------------------------------------------------------------- */
+/* 14. Extra Styles
+/* -------------------------------------------------------------------------- */
+
+.custom-logo {
+	width: 300px;
+}
+
+@media (max-width: 768px) {
+	.custom-logo {
+		width: 220px !important;
+	}
+}
+
+.grid {
+	margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+	.grid {
+		margin-bottom: 20px;
+	}
+}
