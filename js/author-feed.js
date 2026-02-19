@@ -1,6 +1,6 @@
 (function () {
         const onReady = (callback) => {
-                if ( document.readyState !== 'loading' ) {
+                if (document.readyState !== 'loading') {
                         callback();
                         return;
                 }
@@ -11,13 +11,13 @@
         onReady(() => {
                 const loadMoreButton = document.querySelector('.author-feed .loadmore');
 
-                if ( ! loadMoreButton ) {
+                if (!loadMoreButton) {
                         return;
                 }
 
                 const feedContainer = loadMoreButton.closest('.feed');
 
-                if ( ! feedContainer ) {
+                if (!feedContainer) {
                         return;
                 }
 
@@ -35,7 +35,7 @@
                 let observer;
 
                 const setButtonState = (state) => {
-                        switch ( state ) {
+                        switch (state) {
                                 case 'loading':
                                         loadMoreButton.disabled = true;
                                         loadMoreButton.setAttribute('aria-disabled', 'true');
@@ -66,7 +66,7 @@
                 const hasMorePages = () => getCurrentPage() < getMaxPages();
 
                 const hideButtonDuringAuto = () => {
-                        if ( ! canUseAutoLoad ) {
+                        if (!canUseAutoLoad) {
                                 return;
                         }
 
@@ -82,7 +82,7 @@
                 };
 
                 const initialiseState = () => {
-                        if ( ! endpoint || ! hasMorePages() ) {
+                        if (!endpoint || !hasMorePages()) {
                                 setButtonState('disabled');
                                 return false;
                         }
@@ -96,27 +96,27 @@
                                 const url = new window.URL(endpoint);
                                 url.searchParams.set('page', String(nextPage));
                                 return url.toString();
-                        } catch ( error ) {
+                        } catch (error) {
                                 const separator = endpoint.indexOf('?') === -1 ? '?' : '&';
                                 return endpoint + separator + 'page=' + nextPage;
                         }
                 };
 
                 const disconnectObserver = () => {
-                        if ( observer ) {
+                        if (observer) {
                                 observer.disconnect();
                                 observer = null;
                         }
                 };
 
                 const observeSentinel = () => {
-                        if ( observer && sentinel ) {
+                        if (observer && sentinel) {
                                 observer.observe(sentinel);
                         }
                 };
 
                 const loadNextPage = ({ source = 'manual' } = {}) => {
-                        if ( isLoading || loadMoreButton.disabled ) {
+                        if (isLoading || loadMoreButton.disabled) {
                                 return Promise.resolve(false);
                         }
 
@@ -124,7 +124,7 @@
                         const maxPages = getMaxPages();
                         const nextPage = currentPage + 1;
 
-                        if ( nextPage > maxPages ) {
+                        if (nextPage > maxPages) {
                                 setButtonState('disabled');
                                 return Promise.resolve(false);
                         }
@@ -132,14 +132,14 @@
                         isLoading = true;
                         setButtonState('loading');
 
-                        if ( source === 'auto' ) {
+                        if (source === 'auto') {
                                 hideButtonDuringAuto();
                         }
 
                         const requestUrl = buildRequestUrl(nextPage);
                         const headers = { Accept: 'application/json' };
 
-                        if ( loadMoreButton.dataset.nonce ) {
+                        if (loadMoreButton.dataset.nonce) {
                                 headers['X-WP-Nonce'] = loadMoreButton.dataset.nonce;
                         }
 
@@ -150,23 +150,43 @@
                                         credentials: 'same-origin',
                                 })
                                 .then((response) => {
-                                        if ( ! response.ok ) {
+                                        if (!response.ok) {
                                                 throw new Error('Request failed with status ' + response.status);
                                         }
 
                                         return response.json();
                                 })
                                 .then((data) => {
-                                        if ( data && typeof data.maxPages !== 'undefined' ) {
+                                        if (data && typeof data.maxPages !== 'undefined') {
                                                 loadMoreButton.dataset.maxPages = data.maxPages;
                                         }
 
-                                        if ( data && data.html ) {
-                                                if ( postsContainer ) {
-                                                        postsContainer.insertAdjacentHTML('beforeend', data.html);
+                                        if (data && data.html) {
+                                                // Strip dead inline <script> tags from AJAX HTML.
+                                                // Browsers silently ignore <script> injected via
+                                                // innerHTML/insertAdjacentHTML (XSS protection).
+                                                // Leaving them in confuses AdSense's internal scanner.
+                                                const cleanHtml = data.html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+
+                                                if (postsContainer) {
+                                                        postsContainer.insertAdjacentHTML('beforeend', cleanHtml);
                                                 } else {
-                                                        loadMoreButton.insertAdjacentHTML('beforebegin', data.html);
+                                                        loadMoreButton.insertAdjacentHTML('beforebegin', cleanHtml);
                                                 }
+
+                                                // Manually initialize each new AdSense slot.
+                                                // Use requestAnimationFrame so the browser has
+                                                // painted the new DOM and containers have width.
+                                                requestAnimationFrame(() => {
+                                                        const freshSlots = document.querySelectorAll(
+                                                                'ins.adsbygoogle:not([data-adsbygoogle-status])'
+                                                        );
+                                                        freshSlots.forEach((slot) => {
+                                                                try {
+                                                                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                                                                } catch (e) { /* slot already processed */ }
+                                                        });
+                                                });
                                         }
 
                                         loadMoreButton.dataset.currentPage = String(nextPage);
@@ -174,13 +194,13 @@
                                         const morePagesAvailable = hasMorePages();
                                         const hasNewContent = Boolean(data && data.html);
 
-                                        if ( source === 'auto' && hasNewContent ) {
+                                        if (source === 'auto' && hasNewContent) {
                                                 autoLoadCount += 1;
                                         }
 
-                                        if ( ! morePagesAvailable || ! hasNewContent ) {
+                                        if (!morePagesAvailable || !hasNewContent) {
                                                 setButtonState('disabled');
-                                        } else if ( source === 'manual' ) {
+                                        } else if (source === 'manual') {
                                                 setButtonState('default');
                                         } else {
                                                 setButtonState('default');
@@ -192,7 +212,7 @@
                                         // eslint-disable-next-line no-console
                                         console.error('Load more request failed:', error);
 
-                                        if ( source === 'manual' ) {
+                                        if (source === 'manual') {
                                                 setButtonState('default');
                                         } else {
                                                 showButtonAfterAuto();
@@ -206,7 +226,7 @@
                                 });
                 };
 
-                if ( ! initialiseState() ) {
+                if (!initialiseState()) {
                         return;
                 }
 
@@ -214,33 +234,33 @@
                         loadNextPage({ source: 'manual' });
                 });
 
-                if ( canUseAutoLoad && hasMorePages() ) {
+                if (canUseAutoLoad && hasMorePages()) {
                         hideButtonDuringAuto();
 
                         observer = new window.IntersectionObserver((entries) => {
                                 entries.forEach((entry) => {
-                                        if ( ! entry.isIntersecting ) {
+                                        if (!entry.isIntersecting) {
                                                 return;
                                         }
 
-                                        if ( isLoading || ! hasMorePages() || autoLoadCount >= autoLoadLimit ) {
+                                        if (isLoading || !hasMorePages() || autoLoadCount >= autoLoadLimit) {
                                                 return;
                                         }
 
                                         observer.unobserve(entry.target);
 
                                         loadNextPage({ source: 'auto' }).then((success) => {
-                                                if ( ! success ) {
+                                                if (!success) {
                                                         disconnectObserver();
                                                         showButtonAfterAuto();
                                                         return;
                                                 }
 
-                                                if ( ! hasMorePages() || autoLoadCount >= autoLoadLimit ) {
+                                                if (!hasMorePages() || autoLoadCount >= autoLoadLimit) {
                                                         disconnectObserver();
                                                         showButtonAfterAuto();
 
-                                                        if ( ! hasMorePages() ) {
+                                                        if (!hasMorePages()) {
                                                                 setButtonState('disabled');
                                                         }
                                                 } else {

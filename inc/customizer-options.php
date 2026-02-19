@@ -10,12 +10,13 @@
  *
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
  */
-function obdc_simplex_news_customize_register( $wp_customize ) {
+function obdc_simplex_news_customize_register($wp_customize)
+{
 	// Theme settings section.
 	$wp_customize->add_section(
 		'obdc_simplex_news_theme_settings',
 		array(
-			'title'    => __( 'Configurações do Tema', 'obdc-simplex-news' ),
+			'title' => __('Configurações do Tema', 'obdc-simplex-news'),
 			'priority' => 100,
 		)
 	);
@@ -24,9 +25,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_live_status',
 		array(
-			'default'           => 'on',
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => 'on',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_select',
 		)
 	);
@@ -34,12 +35,12 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_live_status',
 		array(
-			'label'   => __( 'Status do Ticker LIVE', 'obdc-simplex-news' ),
+			'label' => __('Status do Ticker LIVE', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_theme_settings',
-			'type'    => 'select',
+			'type' => 'select',
 			'choices' => array(
-				'on'  => __( 'Ativado', 'obdc-simplex-news' ),
-				'off' => __( 'Desativado', 'obdc-simplex-news' ),
+				'on' => __('Ativado', 'obdc-simplex-news'),
+				'off' => __('Desativado', 'obdc-simplex-news'),
 			),
 		)
 	);
@@ -48,9 +49,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_youtube_live_enabled',
 		array(
-			'default'           => false,
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => false,
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_checkbox',
 		)
 	);
@@ -58,10 +59,10 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_youtube_live_enabled',
 		array(
-			'label'       => __( 'Usar ticker automatico do YouTube', 'obdc-simplex-news' ),
-			'description' => __( 'Ative para exibir o status da transmissao ao vivo do canal configurado. Quando off-line, o texto manual sera exibido.', 'obdc-simplex-news' ),
-			'section'     => 'obdc_simplex_news_theme_settings',
-			'type'        => 'checkbox',
+			'label' => __('Usar ticker automatico do YouTube', 'obdc-simplex-news'),
+			'description' => __('Ative para exibir o status da transmissao ao vivo do canal configurado. Quando off-line, o texto manual sera exibido.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_theme_settings',
+			'type' => 'checkbox',
 		)
 	);
 
@@ -69,9 +70,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_youtube_api_key',
 		array(
-			'default'           => '',
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_api_key',
 		)
 	);
@@ -79,13 +80,13 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_youtube_api_key',
 		array(
-			'label'       => __( 'YouTube API Key', 'obdc-simplex-news' ),
-			'description' => __( 'Chave usada para consultar o status das lives. Guarde em local seguro.', 'obdc-simplex-news' ),
-			'section'     => 'obdc_simplex_news_theme_settings',
-			'type'        => 'text',
+			'label' => __('YouTube API Key', 'obdc-simplex-news'),
+			'description' => __('Chave usada para consultar o status das lives. Guarde em local seguro.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_theme_settings',
+			'type' => 'text',
 			'input_attrs' => array(
 				'autocomplete' => 'off',
-				'placeholder'  => __( 'AIza...', 'obdc-simplex-news' ),
+				'placeholder' => __('AIza...', 'obdc-simplex-news'),
 			),
 		)
 	);
@@ -94,9 +95,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_youtube_channel_id',
 		array(
-			'default'           => 'UCQ9rCTknypukp6KgQPkZC8Q',
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => 'UCQ9rCTknypukp6KgQPkZC8Q',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_channel_id',
 		)
 	);
@@ -104,12 +105,12 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_youtube_channel_id',
 		array(
-			'label'       => __( 'YouTube Channel ID', 'obdc-simplex-news' ),
-			'description' => __( 'ID do canal que deve ser monitorado para transmissao ao vivo.', 'obdc-simplex-news' ),
-			'section'     => 'obdc_simplex_news_theme_settings',
-			'type'        => 'text',
+			'label' => __('YouTube Channel ID', 'obdc-simplex-news'),
+			'description' => __('ID do canal que deve ser monitorado para transmissao ao vivo.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_theme_settings',
+			'type' => 'text',
 			'input_attrs' => array(
-				'placeholder' => __( 'UCxxxxxxxxxxxxxxxxxxxxxx', 'obdc-simplex-news' ),
+				'placeholder' => __('UCxxxxxxxxxxxxxxxxxxxxxx', 'obdc-simplex-news'),
 			),
 		)
 	);
@@ -118,9 +119,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_youtube_fallback_text',
 		array(
-			'default'           => __( 'Um Brasil que pensa, comeca de cima.', 'obdc-simplex-news' ),
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => __('Um Brasil que pensa, comeca de cima.', 'obdc-simplex-news'),
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_fallback_text',
 		)
 	);
@@ -128,10 +129,10 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_youtube_fallback_text',
 		array(
-			'label'       => __( 'Texto quando nao ha live', 'obdc-simplex-news' ),
-			'description' => __( 'Mensagem exibida na barra quando nao houver transmissao ao vivo.', 'obdc-simplex-news' ),
-			'section'     => 'obdc_simplex_news_theme_settings',
-			'type'        => 'text',
+			'label' => __('Texto quando nao ha live', 'obdc-simplex-news'),
+			'description' => __('Mensagem exibida na barra quando nao houver transmissao ao vivo.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_theme_settings',
+			'type' => 'text',
 		)
 	);
 
@@ -139,9 +140,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_cnpj',
 		array(
-			'default'           => '00.000.000/0001-00',
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => '00.000.000/0001-00',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'sanitize_text_field',
 		)
 	);
@@ -149,9 +150,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_cnpj',
 		array(
-			'label'   => __( 'CNPJ da Empresa', 'obdc-simplex-news' ),
+			'label' => __('CNPJ da Empresa', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_theme_settings',
-			'type'    => 'text',
+			'type' => 'text',
 		)
 	);
 
@@ -159,9 +160,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_city',
 		array(
-			'default'           => 'Belém, PA',
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => 'Belém, PA',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'sanitize_text_field',
 		)
 	);
@@ -169,9 +170,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_city',
 		array(
-			'label'   => __( 'Cidade da Sede', 'obdc-simplex-news' ),
+			'label' => __('Cidade da Sede', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_theme_settings',
-			'type'    => 'text',
+			'type' => 'text',
 		)
 	);
 
@@ -179,32 +180,32 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_panel(
 		'obdc_simplex_news_footer_panel',
 		array(
-			'title'       => __( 'Rodapé', 'obdc-simplex-news' ),
-			'description' => __( 'Personalize os títulos das colunas e o comportamento do acordeão no mobile.', 'obdc-simplex-news' ),
-			'priority'    => 110,
+			'title' => __('Rodapé', 'obdc-simplex-news'),
+			'description' => __('Personalize os títulos das colunas e o comportamento do acordeão no mobile.', 'obdc-simplex-news'),
+			'priority' => 110,
 		)
 	);
 
 	$wp_customize->add_section(
 		'obdc_simplex_news_footer_sections',
 		array(
-			'title' => __( 'Seções do rodapé', 'obdc-simplex-news' ),
+			'title' => __('Seções do rodapé', 'obdc-simplex-news'),
 			'panel' => 'obdc_simplex_news_footer_panel',
 		)
 	);
 
 	$footer_sections = obdc_simplex_news_get_footer_section_defaults();
 
-	foreach ( $footer_sections as $location => $default_label ) {
-		$label_setting_id = obdc_simplex_news_get_footer_section_label_mod_key( $location );
-		$open_setting_id  = obdc_simplex_news_get_footer_section_open_mod_key( $location );
+	foreach ($footer_sections as $location => $default_label) {
+		$label_setting_id = obdc_simplex_news_get_footer_section_label_mod_key($location);
+		$open_setting_id = obdc_simplex_news_get_footer_section_open_mod_key($location);
 
 		$wp_customize->add_setting(
 			$label_setting_id,
 			array(
-				'default'           => $default_label,
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
+				'default' => $default_label,
+				'type' => 'theme_mod',
+				'capability' => 'edit_theme_options',
 				'sanitize_callback' => 'sanitize_text_field',
 			)
 		);
@@ -213,18 +214,18 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 			$label_setting_id,
 			array(
 				/* translators: %s: default footer section title. */
-				'label'   => sprintf( __( 'Título da seção (%s)', 'obdc-simplex-news' ), $default_label ),
+				'label' => sprintf(__('Título da seção (%s)', 'obdc-simplex-news'), $default_label),
 				'section' => 'obdc_simplex_news_footer_sections',
-				'type'    => 'text',
+				'type' => 'text',
 			)
 		);
 
 		$wp_customize->add_setting(
 			$open_setting_id,
 			array(
-				'default'           => false,
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
+				'default' => false,
+				'type' => 'theme_mod',
+				'capability' => 'edit_theme_options',
 				'sanitize_callback' => 'obdc_simplex_news_sanitize_checkbox',
 			)
 		);
@@ -233,9 +234,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 			$open_setting_id,
 			array(
 				/* translators: %s: footer section label. */
-				'label'   => sprintf( __( 'Abrir "%s" por padrão no mobile', 'obdc-simplex-news' ), $default_label ),
+				'label' => sprintf(__('Abrir "%s" por padrão no mobile', 'obdc-simplex-news'), $default_label),
 				'section' => 'obdc_simplex_news_footer_sections',
-				'type'    => 'checkbox',
+				'type' => 'checkbox',
 			)
 		);
 	}
@@ -244,29 +245,29 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_panel(
 		'obdc_simplex_news_authors_panel',
 		array(
-			'title'       => __( 'Autores', 'obdc-simplex-news' ),
-			'description' => __( 'Configure os autores em destaque na página inicial.', 'obdc-simplex-news' ),
-			'priority'    => 120,
+			'title' => __('Autores', 'obdc-simplex-news'),
+			'description' => __('Configure os autores em destaque na página inicial.', 'obdc-simplex-news'),
+			'priority' => 120,
 		)
 	);
 
 	$wp_customize->add_section(
 		'obdc_simplex_news_featured_authors_section',
 		array(
-			'title' => __( 'Autores em destaque', 'obdc-simplex-news' ),
+			'title' => __('Autores em destaque', 'obdc-simplex-news'),
 			'panel' => 'obdc_simplex_news_authors_panel',
 		)
 	);
 
 	$available_roles = obdc_simplex_news_get_available_author_roles();
-	$role_choices    = array( '__fallback__' => __( 'Fallback automático (todos os papéis permitidos)', 'obdc-simplex-news' ) ) + $available_roles;
+	$role_choices = array('__fallback__' => __('Fallback automático (todos os papéis permitidos)', 'obdc-simplex-news')) + $available_roles;
 
 	$wp_customize->add_setting(
 		'obdc_simplex_news_featured_author_roles',
 		array(
-			'default'           => array_keys( $available_roles ),
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => array_keys($available_roles),
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_roles',
 		)
 	);
@@ -276,15 +277,15 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 			$wp_customize,
 			'obdc_simplex_news_featured_author_roles',
 			array(
-				'label'       => __( 'Papéis elegíveis', 'obdc-simplex-news' ),
-				'section'     => 'obdc_simplex_news_featured_authors_section',
-				'type'        => 'select',
-				'choices'     => $role_choices,
-				'description' => __( 'Selecione quais tipos de usuários podem aparecer no mural (escolha "Fallback automático" para usar todos).', 'obdc-simplex-news' ),
+				'label' => __('Papéis elegíveis', 'obdc-simplex-news'),
+				'section' => 'obdc_simplex_news_featured_authors_section',
+				'type' => 'select',
+				'choices' => $role_choices,
+				'description' => __('Selecione quais tipos de usuários podem aparecer no mural (escolha "Fallback automático" para usar todos).', 'obdc-simplex-news'),
 				'input_attrs' => array(
 					'multiple' => 'multiple',
-					'size'     => min( 8, count( $role_choices ) ),
-					'style'    => 'height:auto;',
+					'size' => min(8, count($role_choices)),
+					'style' => 'height:auto;',
 				),
 			)
 		)
@@ -294,9 +295,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_featured_authors',
 		array(
-			'default'           => array(),
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => array(),
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_author_ids',
 		)
 	);
@@ -306,20 +307,20 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$user_query = new WP_User_Query(
 		array(
 			'role__in' => $roles_for_query,
-			'orderby'  => 'display_name',
-			'order'    => 'ASC',
-			'fields'   => array( 'ID', 'display_name' ),
-			'number'   => 300,
+			'orderby' => 'display_name',
+			'order' => 'ASC',
+			'fields' => array('ID', 'display_name'),
+			'number' => 300,
 		)
 	);
 
 	$author_choices = array(
-		'__fallback__' => __( 'Usar fallback automático (autores mais produtivos)', 'obdc-simplex-news' ),
+		'__fallback__' => __('Usar fallback automático (autores mais produtivos)', 'obdc-simplex-news'),
 	);
 
-	if ( ! empty( $user_query->results ) ) {
-		foreach ( $user_query->results as $user ) {
-			$author_choices[ $user->ID ] = $user->display_name;
+	if (!empty($user_query->results)) {
+		foreach ($user_query->results as $user) {
+			$author_choices[$user->ID] = $user->display_name;
 		}
 	}
 
@@ -328,15 +329,15 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 			$wp_customize,
 			'obdc_simplex_news_featured_authors',
 			array(
-				'label'       => __( 'Selecionar autores manualmente', 'obdc-simplex-news' ),
-				'section'     => 'obdc_simplex_news_featured_authors_section',
-				'type'        => 'select',
-				'choices'     => $author_choices,
-				'description' => __( 'Autores selecionados aparecem primeiro no mural. Use Ctrl/Cmd ou Shift para marcar vários. Se não escolher ninguém, o sistema usará o fallback automático.', 'obdc-simplex-news' ),
+				'label' => __('Selecionar autores manualmente', 'obdc-simplex-news'),
+				'section' => 'obdc_simplex_news_featured_authors_section',
+				'type' => 'select',
+				'choices' => $author_choices,
+				'description' => __('Autores selecionados aparecem primeiro no mural. Use Ctrl/Cmd ou Shift para marcar vários. Se não escolher ninguém, o sistema usará o fallback automático.', 'obdc-simplex-news'),
 				'input_attrs' => array(
 					'multiple' => 'multiple',
-					'size'     => min( 18, max( 8, count( $author_choices ) ) ),
-					'style'    => 'height:auto;',
+					'size' => min(18, max(8, count($author_choices))),
+					'style' => 'height:auto;',
 				),
 			)
 		)
@@ -346,9 +347,9 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_setting(
 		'obdc_simplex_news_featured_authors_period',
 		array(
-			'default'           => 30,
-			'type'              => 'theme_mod',
-			'capability'        => 'edit_theme_options',
+			'default' => 30,
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
 			'sanitize_callback' => 'obdc_simplex_news_sanitize_period',
 		)
 	);
@@ -356,19 +357,175 @@ function obdc_simplex_news_customize_register( $wp_customize ) {
 	$wp_customize->add_control(
 		'obdc_simplex_news_featured_authors_period',
 		array(
-			'label'       => __( 'Período para o fallback automático', 'obdc-simplex-news' ),
-			'section'     => 'obdc_simplex_news_featured_authors_section',
-			'type'        => 'select',
-			'choices'     => array(
-				7  => __( 'Últimos 7 dias', 'obdc-simplex-news' ),
-				30 => __( 'Últimos 30 dias', 'obdc-simplex-news' ),
-				90 => __( 'Últimos 90 dias', 'obdc-simplex-news' ),
+			'label' => __('Período para o fallback automático', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_featured_authors_section',
+			'type' => 'select',
+			'choices' => array(
+				7 => __('Últimos 7 dias', 'obdc-simplex-news'),
+				30 => __('Últimos 30 dias', 'obdc-simplex-news'),
+				90 => __('Últimos 90 dias', 'obdc-simplex-news'),
 			),
-			'description' => __( 'Quando não houver autores selecionados, o mural exibirá os usuários mais produtivos dentro deste intervalo.', 'obdc-simplex-news' ),
+			'description' => __('Quando não houver autores selecionados, o mural exibirá os usuários mais produtivos dentro deste intervalo.', 'obdc-simplex-news'),
+		)
+	);
+
+	// ─── AdSense / Monetização ───────────────────────────────────────────
+	$wp_customize->add_section(
+		'obdc_simplex_news_adsense_section',
+		array(
+			'title' => __('Monetização (AdSense)', 'obdc-simplex-news'),
+			'description' => __('Configure os blocos de anúncios do Google AdSense. Deixe em branco para usar widgets manuais.', 'obdc-simplex-news'),
+			'priority' => 130,
+		)
+	);
+
+	// Client ID (ca-pub-XXXX).
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_client_id',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_id',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_client_id',
+		array(
+			'label' => __('AdSense Client ID', 'obdc-simplex-news'),
+			'description' => __('Identificador do editor (ex: ca-pub-1234567890123456).', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => 'ca-pub-XXXXXXXXXXXXXXXX',
+			),
+		)
+	);
+
+	// Top Slot IDs (comma-separated for rotation).
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_slot_top',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_slot_list',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_slot_top',
+		array(
+			'label' => __('Slot IDs — Banner Topo', 'obdc-simplex-news'),
+			'description' => __('ID(s) do bloco de anúncio para o banner superior da home. Aceita múltiplos IDs separados por vírgula para rotação (ex: 111,222).', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => '1234567890',
+			),
+		)
+	);
+
+	// Feed Slot IDs (comma-separated for rotation).
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_slot_feed',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_slot_list',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_slot_feed',
+		array(
+			'label' => __('Slot IDs — Feed (rotação)', 'obdc-simplex-news'),
+			'description' => __('IDs separados por vírgula para rotacionar os anúncios no feed (ex: 111,222,333).', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => '111,222,333',
+			),
+		)
+	);
+
+	// In-Feed Layout Key.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_layout_key_feed',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_layout_key_feed',
+		array(
+			'label' => __('Layout Key — Feed (In-Feed Nativo)', 'obdc-simplex-news'),
+			'description' => __('Se o anúncio do feed for do tipo In-Feed Nativo, insira o data-ad-layout-key aqui (ex: -6t+ed+2i-1n-4w).', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => '-6t+ed+2i-1n-4w',
+			),
+		)
+	);
+
+	// In-Content Slot IDs (comma-separated for rotation).
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_slot_in_content',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_slot_list',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_slot_in_content',
+		array(
+			'label' => __('Slot IDs — Dentro do artigo', 'obdc-simplex-news'),
+			'description' => __('ID(s) do bloco de anúncio para inserir entre os parágrafos. Aceita múltiplos IDs separados por vírgula para rotação.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => '987,654,321',
+			),
+		)
+	);
+
+	// In-Content Frequency.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_in_content_frequency',
+		array(
+			'default' => 3,
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'absint',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_in_content_frequency',
+		array(
+			'label' => __('Frequência (parágrafos)', 'obdc-simplex-news'),
+			'description' => __('Inserir anúncio a cada X parágrafos dentro do artigo.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'number',
+			'input_attrs' => array(
+				'min' => 2,
+				'max' => 10,
+				'step' => 1,
+			),
 		)
 	);
 }
-add_action( 'customize_register', 'obdc_simplex_news_customize_register' );
+add_action('customize_register', 'obdc_simplex_news_customize_register');
 
 /**
  * Sanitize select values for customizer settings.
@@ -376,13 +533,14 @@ add_action( 'customize_register', 'obdc_simplex_news_customize_register' );
  * @param string $input The input value.
  * @return string The sanitized value.
  */
-function obdc_simplex_news_sanitize_select( $input ) {
+function obdc_simplex_news_sanitize_select($input)
+{
 	$valid_keys = array(
-		'on'  => 'on',
+		'on' => 'on',
 		'off' => 'off',
 	);
 
-	if ( array_key_exists( $input, $valid_keys ) ) {
+	if (array_key_exists($input, $valid_keys)) {
 		return $input;
 	}
 
@@ -395,7 +553,8 @@ function obdc_simplex_news_sanitize_select( $input ) {
  * @param mixed $value Raw checkbox value.
  * @return bool Sanitized boolean flag.
  */
-function obdc_simplex_news_sanitize_checkbox( $value ) {
+function obdc_simplex_news_sanitize_checkbox($value)
+{
 	return (bool) $value;
 }
 
@@ -405,27 +564,28 @@ function obdc_simplex_news_sanitize_checkbox( $value ) {
  * @param mixed $roles Raw value from the Customizer.
  * @return array Sanitized role slugs.
  */
-function obdc_simplex_news_sanitize_roles( $roles ) {
-	$available = array_keys( obdc_simplex_news_get_available_author_roles() );
+function obdc_simplex_news_sanitize_roles($roles)
+{
+	$available = array_keys(obdc_simplex_news_get_available_author_roles());
 
-	if ( is_string( $roles ) ) {
-		$roles = array_map( 'trim', explode( ',', $roles ) );
+	if (is_string($roles)) {
+		$roles = array_map('trim', explode(',', $roles));
 	}
 
-	if ( ! is_array( $roles ) ) {
+	if (!is_array($roles)) {
 		return $available;
 	}
 
-	$roles = array_map( 'sanitize_key', $roles );
-	$use_fallback = in_array( '__fallback__', $roles, true );
-	$roles        = array_diff( $roles, array( '__fallback__' ) );
-	$roles        = array_intersect( $roles, $available );
+	$roles = array_map('sanitize_key', $roles);
+	$use_fallback = in_array('__fallback__', $roles, true);
+	$roles = array_diff($roles, array('__fallback__'));
+	$roles = array_intersect($roles, $available);
 
-	if ( $use_fallback ) {
+	if ($use_fallback) {
 		return array();
 	}
 
-	return array_values( $roles );
+	return array_values($roles);
 }
 
 /**
@@ -434,30 +594,31 @@ function obdc_simplex_news_sanitize_roles( $roles ) {
  * @param mixed $ids Raw value from the Customizer.
  * @return array Sanitized IDs.
  */
-function obdc_simplex_news_sanitize_author_ids( $ids ) {
-	if ( empty( $ids ) ) {
+function obdc_simplex_news_sanitize_author_ids($ids)
+{
+	if (empty($ids)) {
 		return array();
 	}
 
-	if ( is_string( $ids ) ) {
-		$ids = array_map( 'trim', explode( ',', $ids ) );
+	if (is_string($ids)) {
+		$ids = array_map('trim', explode(',', $ids));
 	}
 
-	if ( ! is_array( $ids ) ) {
+	if (!is_array($ids)) {
 		return array();
 	}
 
-	$use_fallback = in_array( '__fallback__', $ids, true );
-	$ids          = array_diff( $ids, array( '__fallback__' ) );
+	$use_fallback = in_array('__fallback__', $ids, true);
+	$ids = array_diff($ids, array('__fallback__'));
 
-	$ids = array_map( 'absint', $ids );
-	$ids = array_filter( $ids );
+	$ids = array_map('absint', $ids);
+	$ids = array_filter($ids);
 
-	if ( $use_fallback ) {
+	if ($use_fallback) {
 		return array();
 	}
 
-	return array_values( array_unique( $ids ) );
+	return array_values(array_unique($ids));
 }
 
 /**
@@ -466,10 +627,11 @@ function obdc_simplex_news_sanitize_author_ids( $ids ) {
  * @param mixed $value Raw period value.
  * @return int Valid number of days (7, 30 or 90).
  */
-function obdc_simplex_news_sanitize_period( $value ) {
-	$value = absint( $value );
+function obdc_simplex_news_sanitize_period($value)
+{
+	$value = absint($value);
 
-	if ( ! in_array( $value, array( 7, 30, 90 ), true ) ) {
+	if (!in_array($value, array(7, 30, 90), true)) {
 		$value = 30;
 	}
 
@@ -482,9 +644,10 @@ function obdc_simplex_news_sanitize_period( $value ) {
  * @param string $input The input value.
  * @return string The sanitized value.
  */
-function obdc_simplex_news_sanitize_live_text( $input ) {
-	$input = sanitize_text_field( $input );
-	$input = substr( $input, 0, 150 );
+function obdc_simplex_news_sanitize_live_text($input)
+{
+	$input = sanitize_text_field($input);
+	$input = substr($input, 0, 150);
 	return $input;
 }
 
@@ -494,14 +657,15 @@ function obdc_simplex_news_sanitize_live_text( $input ) {
  * @param string $input Raw API key.
  * @return string Sanitized key.
  */
-function obdc_simplex_news_sanitize_api_key( $input ) {
-	if ( ! is_string( $input ) ) {
+function obdc_simplex_news_sanitize_api_key($input)
+{
+	if (!is_string($input)) {
 		return '';
 	}
 
-	$input = trim( $input );
-	$input = sanitize_text_field( $input );
-	return substr( $input, 0, 128 );
+	$input = trim($input);
+	$input = sanitize_text_field($input);
+	return substr($input, 0, 128);
 }
 
 /**
@@ -510,14 +674,15 @@ function obdc_simplex_news_sanitize_api_key( $input ) {
  * @param string $input Raw channel ID.
  * @return string Sanitized channel ID.
  */
-function obdc_simplex_news_sanitize_channel_id( $input ) {
-	if ( ! is_string( $input ) ) {
+function obdc_simplex_news_sanitize_channel_id($input)
+{
+	if (!is_string($input)) {
 		return '';
 	}
 
-	$input = trim( $input );
-	$input = sanitize_text_field( $input );
-	return substr( $input, 0, 64 );
+	$input = trim($input);
+	$input = sanitize_text_field($input);
+	return substr($input, 0, 64);
 }
 
 /**
@@ -526,9 +691,47 @@ function obdc_simplex_news_sanitize_channel_id( $input ) {
  * @param string $input Raw fallback text.
  * @return string Sanitized fallback text.
  */
-function obdc_simplex_news_sanitize_fallback_text( $input ) {
-	$input = sanitize_text_field( $input );
-	return substr( $input, 0, 150 );
+function obdc_simplex_news_sanitize_fallback_text($input)
+{
+	$input = sanitize_text_field($input);
+	return substr($input, 0, 150);
+}
+
+/**
+ * Sanitize a single AdSense ID (client or slot).
+ *
+ * Allows only alphanumeric characters, hyphens, and underscores.
+ *
+ * @param string $input Raw ID.
+ * @return string Sanitized ID.
+ */
+function obdc_simplex_news_sanitize_adsense_id($input)
+{
+	if (!is_string($input)) {
+		return '';
+	}
+
+	$input = trim($input);
+	return preg_replace('/[^a-zA-Z0-9\-_]/', '', $input);
+}
+
+/**
+ * Sanitize a comma-separated list of AdSense slot IDs.
+ *
+ * @param string $input Raw comma-separated IDs.
+ * @return string Sanitized comma-separated IDs.
+ */
+function obdc_simplex_news_sanitize_adsense_slot_list($input)
+{
+	if (!is_string($input)) {
+		return '';
+	}
+
+	$ids = array_map('trim', explode(',', $input));
+	$ids = array_map('obdc_simplex_news_sanitize_adsense_id', $ids);
+	$ids = array_filter($ids);
+
+	return implode(',', $ids);
 }
 
 // Note: The function obdc_simplex_news_customize_preview_js() was moved to inc/customizer.php

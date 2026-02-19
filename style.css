@@ -819,6 +819,16 @@ main {
 	font-weight: 700;
 }
 
+.ad-container {
+	min-height: 250px;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 /* Feed + Sidebar */
 .content {
 	display: flex;

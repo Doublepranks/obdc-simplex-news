@@ -6,8 +6,9 @@
  */
 
 if (!defined('_S_VERSION')) {
-	// Replace the version number of the theme on each release.
-	define('_S_VERSION', '1.0.0');
+	// Use the theme's style.css modification time as the version string.
+	// This automatically busts browser and CDN (Cloudflare) caches on every deploy.
+	define('_S_VERSION', (string) filemtime(get_template_directory() . '/style.css'));
 }
 
 /**
@@ -682,9 +683,16 @@ function obdc_simplex_news_archive_feed_callback(WP_REST_Request $request)
 	ob_start();
 
 	if ($query->have_posts()) {
+		$obdc_post_counter = 0;
 		while ($query->have_posts()) {
 			$query->the_post();
+			$obdc_post_counter++;
 			get_template_part('template-parts/content/card');
+
+			// Inject an ad every 3 posts
+			if (0 === $obdc_post_counter % 3) {
+				get_template_part('template-parts/ads/in-feed');
+			}
 		}
 	}
 
