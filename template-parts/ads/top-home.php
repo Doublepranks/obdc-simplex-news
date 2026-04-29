@@ -13,7 +13,9 @@ if (function_exists('obdc_simplex_news_should_hide_ads') && obdc_simplex_news_sh
 }
 
 $client_id = get_theme_mod('obdc_simplex_news_adsense_client_id', '');
-$slot_id = get_theme_mod('obdc_simplex_news_adsense_slot_top', '');
+$slot_id = function_exists('obdc_simplex_news_get_next_ad_slot_id')
+	? obdc_simplex_news_get_next_ad_slot_id('obdc_simplex_news_adsense_slot_top')
+	: false;
 
 // 1. AdSense (if both client and slot are configured).
 if (!empty($client_id) && !empty($slot_id) && function_exists('obdc_simplex_news_adsense_block')) {

@@ -403,22 +403,22 @@ function obdc_simplex_news_customize_register($wp_customize)
 		)
 	);
 
-	// Top Slot ID.
+	// Top Slot IDs (comma-separated for rotation).
 	$wp_customize->add_setting(
 		'obdc_simplex_news_adsense_slot_top',
 		array(
 			'default' => '',
 			'type' => 'theme_mod',
 			'capability' => 'edit_theme_options',
-			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_id',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_slot_list',
 		)
 	);
 
 	$wp_customize->add_control(
 		'obdc_simplex_news_adsense_slot_top',
 		array(
-			'label' => __('Slot ID — Banner Topo', 'obdc-simplex-news'),
-			'description' => __('ID do bloco de anúncio para o banner superior da home.', 'obdc-simplex-news'),
+			'label' => __('Slot IDs — Banner Topo', 'obdc-simplex-news'),
+			'description' => __('ID(s) do bloco de anúncio para o banner superior da home. Aceita múltiplos IDs separados por vírgula para rotação (ex: 111,222).', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_adsense_section',
 			'type' => 'text',
 			'input_attrs' => array(
@@ -451,26 +451,50 @@ function obdc_simplex_news_customize_register($wp_customize)
 		)
 	);
 
-	// In-Content Slot ID.
+	// In-Feed Layout Key.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_layout_key_feed',
+		array(
+			'default' => '',
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'sanitize_text_field',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_layout_key_feed',
+		array(
+			'label' => __('Layout Key — Feed (In-Feed Nativo)', 'obdc-simplex-news'),
+			'description' => __('Se o anúncio do feed for do tipo In-Feed Nativo, insira o data-ad-layout-key aqui (ex: -6t+ed+2i-1n-4w).', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'text',
+			'input_attrs' => array(
+				'placeholder' => '-6t+ed+2i-1n-4w',
+			),
+		)
+	);
+
+	// In-Content Slot IDs (comma-separated for rotation).
 	$wp_customize->add_setting(
 		'obdc_simplex_news_adsense_slot_in_content',
 		array(
 			'default' => '',
 			'type' => 'theme_mod',
 			'capability' => 'edit_theme_options',
-			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_id',
+			'sanitize_callback' => 'obdc_simplex_news_sanitize_adsense_slot_list',
 		)
 	);
 
 	$wp_customize->add_control(
 		'obdc_simplex_news_adsense_slot_in_content',
 		array(
-			'label' => __('Slot ID — Dentro do artigo', 'obdc-simplex-news'),
-			'description' => __('ID do bloco de anúncio para inserir entre os parágrafos dos posts.', 'obdc-simplex-news'),
+			'label' => __('Slot IDs — Dentro do artigo', 'obdc-simplex-news'),
+			'description' => __('ID(s) do bloco de anúncio para inserir entre os parágrafos. Aceita múltiplos IDs separados por vírgula para rotação.', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_adsense_section',
 			'type' => 'text',
 			'input_attrs' => array(
-				'placeholder' => '9876543210',
+				'placeholder' => '987,654,321',
 			),
 		)
 	);

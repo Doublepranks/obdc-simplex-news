@@ -14,13 +14,18 @@ if (function_exists('obdc_simplex_news_should_hide_ads') && obdc_simplex_news_sh
 }
 
 $client_id = get_theme_mod('obdc_simplex_news_adsense_client_id', '');
-$slot_id = function_exists('obdc_simplex_news_get_next_feed_ad_slot_id')
-	? obdc_simplex_news_get_next_feed_ad_slot_id()
+$layout_key = get_theme_mod('obdc_simplex_news_adsense_layout_key_feed', '');
+$slot_id = function_exists('obdc_simplex_news_get_next_ad_slot_id')
+	? obdc_simplex_news_get_next_ad_slot_id('obdc_simplex_news_adsense_slot_feed')
 	: false;
 
 // 1. AdSense with rotation (if both client and slot are configured).
 if (!empty($client_id) && !empty($slot_id) && function_exists('obdc_simplex_news_adsense_block')) {
-	echo obdc_simplex_news_adsense_block($client_id, $slot_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally.
+	if (!empty($layout_key)) {
+		echo obdc_simplex_news_adsense_block($client_id, $slot_id, 'fluid', $layout_key); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally.
+	} else {
+		echo obdc_simplex_news_adsense_block($client_id, $slot_id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally.
+	}
 	return;
 }
 
