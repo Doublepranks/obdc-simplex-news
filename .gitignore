@@ -7,3 +7,14 @@ scripts/dev-reset.sh
 docker-compose.yml
 LOCAL_DEV.md
 scripts/
+# ---- Revista Severina: retratos de autores ----
+# As fotos de autores NAO sao versionadas de proposito: pertencem a biblioteca
+# de midia do WordPress, nao ao tema, e somavam ~4.7 MB de binario que ficaria
+# permanente no historico do git. Continuam no servidor e nos backups diarios.
+# Os assets de interface (logo, hero, icones, fundo) SAO versionados.
+severina-module/assets/images/*.jpeg
+severina-module/assets/images/*.jpg
+severina-module/assets/images/*.webp
+# hero-revista-1.png (3.2 MB) fica fora: nao e referenciado por codigo algum,
+# a versao usada e hero-revista-1-compress.png
+severina-module/assets/images/hero-revista-1.png
