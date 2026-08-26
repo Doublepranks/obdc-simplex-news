@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 340" width="250" height="340"
+     role="img" aria-label="Foto de perfil indisponível">
+  <!-- Cores planas de proposito: gradientes SVG falham em alguns
+       renderizadores e este arquivo precisa ser previsivel. -->
+  <rect width="250" height="340" fill="#2b2a28"/>
+
+  <!-- Silhueta na metade superior: o card aplica um gradiente escuro
+       nos 45% de baixo, onde entra o nome do autor. -->
+  <circle cx="125" cy="120" r="42" fill="#5c5851"/>
+  <path d="M125 172c-38 0-68 25-74 59 22 12 47 18 74 18s52-6 74-18c-6-34-36-59-74-59z"
+        fill="#5c5851"/>
+
+  <!-- Acento dourado do tema (#ba8138) -->
+  <circle cx="125" cy="120" r="55" fill="none" stroke="#ba8138" stroke-width="1.5" opacity="0.55"/>
+  <rect x="0" y="336" width="250" height="4" fill="#ba8138"/>
+</svg>

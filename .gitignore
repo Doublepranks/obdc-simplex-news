@@ -12,6 +12,8 @@ scripts/
 # de midia do WordPress, nao ao tema, e somavam ~4.7 MB de binario que ficaria
 # permanente no historico do git. Continuam no servidor e nos backups diarios.
 # Os assets de interface (logo, hero, icones, fundo) SAO versionados.
+# Quando um retrato nao existe, severina_foto_autor() entrega
+# autor-padrao.svg em vez de um link quebrado — ver o README do modulo.
 severina-module/assets/images/*.jpeg
 severina-module/assets/images/*.jpg
 severina-module/assets/images/*.webp

@@ -226,7 +226,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/Roberta.jpg"
+                    src="<?php echo severina_foto_autor('Roberta.jpg'); ?>"
                     alt="Roberta da Cruz"
                 >
 
@@ -284,7 +284,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/Sam Pantoja.webp"
+                    src="<?php echo severina_foto_autor('Sam Pantoja.webp'); ?>"
                     alt="Sam Pantoja"
                 >
 
@@ -342,7 +342,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/jose-lucas.jpeg"
+                    src="<?php echo severina_foto_autor('jose-lucas.jpeg'); ?>"
                     alt="José Lucas Rodrigues"
                 >
 
@@ -400,7 +400,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/Lucas-Mariano.webp"
+                    src="<?php echo severina_foto_autor('Lucas-Mariano.webp'); ?>"
                     alt="Lucas Mariano"
                 >
 
@@ -446,7 +446,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/cris-navarro.jpeg"
+                    src="<?php echo severina_foto_autor('cris-navarro.jpeg'); ?>"
                     alt="Cris Navarro"
                 >
 
@@ -492,7 +492,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/joao-garcia.webp"
+                    src="<?php echo severina_foto_autor('joao-garcia.webp'); ?>"
                     alt="João Garcia"
                 >
 
@@ -538,7 +538,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/John.jpg"
+                    src="<?php echo severina_foto_autor('John.jpg'); ?>"
                     alt="John Robert"
                 >
 
@@ -584,7 +584,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/aureliano-duarte-2.jpeg"
+                    src="<?php echo severina_foto_autor('aureliano-duarte-2.jpeg'); ?>"
                     alt="Aureliano Duarte"
                 >
 
@@ -630,7 +630,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/Gabriel Lacerda.jpeg"
+                    src="<?php echo severina_foto_autor('Gabriel Lacerda.jpeg'); ?>"
                     alt="Gabriel Lacerda"
                 >
 
@@ -688,7 +688,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/Max Avelar.jpeg"
+                    src="<?php echo severina_foto_autor('Max Avelar.jpeg'); ?>"
                     alt="Max Avelar"
                 >
 
@@ -734,7 +734,7 @@ $severina_assets = get_template_directory_uri()
             <div class="membro-image">
 
                 <img 
-                    src="<?php echo SEVERINA_ASSETS_URL; ?>/images/bruno-macedo.jpeg"
+                    src="<?php echo severina_foto_autor('bruno-macedo.jpeg'); ?>"
                     alt="Bruno Macêdo"
                 >
 
