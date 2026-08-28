@@ -837,3 +837,15 @@ function obdc_simplex_news_author_feed_callback(WP_REST_Request $request)
  * Custom Login/Register URLs.
  */
 require get_template_directory() . '/inc/auth.php';
+
+/**
+ * Funções da Revista da Severina
+ */
+
+
+require_once get_template_directory()
+. '/severina-module/integration/severina-config.php';
+
+require_once get_template_directory()
+. '/severina-module/integration/functions-snippet.php';
+
