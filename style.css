@@ -1921,6 +1921,28 @@ main {
 	padding-top: 6px;
 }
 
+/* Tela larga: as cinco secoes (Editorias, Brasil, Especiais, Institucional, Siga) numa
+   linha so. Com o minimo de 160px a quinta caia sozinha numa segunda linha. */
+@media (min-width: 1100px) {
+	.footer-columns {
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 28px;
+	}
+}
+
+/* Ate 840px o .footer-main vira coluna com align-items: flex-start, e a grade
+   encolhia para a largura do conteudo - cabia uma coluna so (tablet com tudo
+   empilhado). Com a largura cheia o auto-fit volta a distribuir em varias colunas.
+   width: 100% e nao align-self: stretch: o stretch so alarga DEPOIS de medir a
+   altura, e a grade ficava com a altura das secoes empilhadas (vaos enormes).
+   flex: none porque, em coluna, o flex: 1 1 320px virava altura. */
+@media (max-width: 840px) {
+	.footer-columns {
+		width: 100%;
+		flex: none;
+	}
+}
+
 .footer-section {
 	display: flex;
 	flex-direction: column;
@@ -1948,6 +1970,13 @@ main {
 
 .footer-section-toggle--collapsible {
 	cursor: pointer;
+}
+
+/* O "+" so faz sentido onde a secao abre e fecha: o acordeao so liga ate 640px
+   (js/footer-accordion.js poe a classe --collapsible). No desktop as colunas ja
+   estao abertas e o "+" nao fazia nada. */
+.footer-section-toggle:not(.footer-section-toggle--collapsible) .footer-section-indicator {
+	display: none;
 }
 
 .footer-section-toggle .footer-section-indicator {
