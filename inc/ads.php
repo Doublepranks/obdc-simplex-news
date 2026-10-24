@@ -168,6 +168,13 @@ function obdc_simplex_news_inject_in_content_ads($content)
 		$frequency = 3;
 	}
 
+	// Cap per article: long posts used to get one ad every $frequency blocks with no limit.
+	$max_ads = absint(get_theme_mod('obdc_simplex_news_adsense_in_content_max', 3));
+	if ($max_ads < 1) {
+		$max_ads = 3;
+	}
+	$ads_inserted = 0;
+
 	/*
 	 * Elements whose </closing> tags we should NEVER inject an ad
 	 * immediately inside of. When we are inside one of these, $depth > 0
@@ -211,10 +218,11 @@ function obdc_simplex_news_inject_in_content_ads($content)
 			if ($depth === 0) {
 				$top_level_blocks++;
 
-				if ($top_level_blocks % $frequency === 0) {
+				if ($top_level_blocks % $frequency === 0 && $ads_inserted < $max_ads) {
 					$current_slot_id = obdc_simplex_news_get_next_ad_slot_id('obdc_simplex_news_adsense_slot_in_content');
 					if ($current_slot_id) {
 						$output .= obdc_simplex_news_adsense_block($client_id, $current_slot_id, 'auto');
+						$ads_inserted++;
 					}
 				}
 			}
@@ -229,10 +237,11 @@ function obdc_simplex_news_inject_in_content_ads($content)
 			if ($depth === 0) {
 				$top_level_blocks++;
 
-				if ($top_level_blocks % $frequency === 0) {
+				if ($top_level_blocks % $frequency === 0 && $ads_inserted < $max_ads) {
 					$current_slot_id = obdc_simplex_news_get_next_ad_slot_id('obdc_simplex_news_adsense_slot_in_content');
 					if ($current_slot_id) {
 						$output .= obdc_simplex_news_adsense_block($client_id, $current_slot_id, 'auto');
+						$ads_inserted++;
 					}
 				}
 			}

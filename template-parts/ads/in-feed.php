@@ -14,10 +14,16 @@ if (function_exists('obdc_simplex_news_should_hide_ads') && obdc_simplex_news_sh
 }
 
 $client_id = get_theme_mod('obdc_simplex_news_adsense_client_id', '');
-$layout_key = get_theme_mod('obdc_simplex_news_adsense_layout_key_feed', '');
 $slot_id = function_exists('obdc_simplex_news_get_next_ad_slot_id')
 	? obdc_simplex_news_get_next_ad_slot_id('obdc_simplex_news_adsense_slot_feed')
 	: false;
+
+// data-ad-layout-key accepts ONE key. The setting holds one key per slot, in the
+// same order as the feed slot IDs; a single key applies to every slot.
+$feed_slots = array_values(array_filter(array_map('trim', explode(',', get_theme_mod('obdc_simplex_news_adsense_slot_feed', '')))));
+$layout_keys = array_values(array_filter(array_map('trim', explode(',', get_theme_mod('obdc_simplex_news_adsense_layout_key_feed', '')))));
+$slot_index = $slot_id ? array_search($slot_id, $feed_slots, true) : false;
+$layout_key = (false !== $slot_index && isset($layout_keys[$slot_index])) ? $layout_keys[$slot_index] : ($layout_keys[0] ?? '');
 
 // 1. AdSense with rotation (if both client and slot are configured).
 if (!empty($client_id) && !empty($slot_id) && function_exists('obdc_simplex_news_adsense_block')) {

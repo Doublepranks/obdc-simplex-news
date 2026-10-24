@@ -466,7 +466,7 @@ function obdc_simplex_news_customize_register($wp_customize)
 		'obdc_simplex_news_adsense_layout_key_feed',
 		array(
 			'label' => __('Layout Key — Feed (In-Feed Nativo)', 'obdc-simplex-news'),
-			'description' => __('Se o anúncio do feed for do tipo In-Feed Nativo, insira o data-ad-layout-key aqui (ex: -6t+ed+2i-1n-4w).', 'obdc-simplex-news'),
+			'description' => __('Se o anúncio do feed for do tipo In-Feed Nativo, insira o data-ad-layout-key aqui (ex: -6t+ed+2i-1n-4w). Com vários Slot IDs no feed, informe uma chave por slot, separadas por vírgula e na mesma ordem; uma chave só vale para todos.', 'obdc-simplex-news'),
 			'section' => 'obdc_simplex_news_adsense_section',
 			'type' => 'text',
 			'input_attrs' => array(
@@ -519,6 +519,32 @@ function obdc_simplex_news_customize_register($wp_customize)
 			'type' => 'number',
 			'input_attrs' => array(
 				'min' => 2,
+				'max' => 10,
+				'step' => 1,
+			),
+		)
+	);
+
+	// In-Content Max Ads.
+	$wp_customize->add_setting(
+		'obdc_simplex_news_adsense_in_content_max',
+		array(
+			'default' => 3,
+			'type' => 'theme_mod',
+			'capability' => 'edit_theme_options',
+			'sanitize_callback' => 'absint',
+		)
+	);
+
+	$wp_customize->add_control(
+		'obdc_simplex_news_adsense_in_content_max',
+		array(
+			'label' => __('Máximo de anúncios por artigo', 'obdc-simplex-news'),
+			'description' => __('Limite de anúncios inseridos entre os parágrafos, mesmo em artigos longos.', 'obdc-simplex-news'),
+			'section' => 'obdc_simplex_news_adsense_section',
+			'type' => 'number',
+			'input_attrs' => array(
+				'min' => 1,
 				'max' => 10,
 				'step' => 1,
 			),
